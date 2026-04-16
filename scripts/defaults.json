@@ -1,0 +1,25 @@
+{
+  "segments": ["model", "rate", "context", "directory", "branch"],
+  "colors": {
+    "model": "96",
+    "rate": "95",
+    "context": "94",
+    "directory": "2",
+    "branch": "92",
+    "warning": "93",
+    "critical": "91",
+    "label": "2"
+  },
+  "thresholds": {
+    "warning": 50,
+    "critical": 80
+  },
+  "bar": {
+    "filled": "█",
+    "empty": "░",
+    "width": 10
+  },
+  "directory": {
+    "relative_to": "home"
+  }
+}
