@@ -1,6 +1,6 @@
 ---
 name: statusbar
-description: Install, configure, or remove the Claude Code statusbar — model, rate limits, context window, directory, git branch
+description: "⛁ Manage your statusbar: the persistent gauge showing model, rate limits, context %, directory and git branch at the bottom of Claude Code"
 ---
 
 # Statusbar

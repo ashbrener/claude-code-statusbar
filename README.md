@@ -21,17 +21,27 @@ It's configurable — choose which segments to show, customize labels and bar st
 ## Install
 
 ```bash
-npx claude-code-statusbar
+npx github:ashbrener/claude-code-statusbar
 ```
 
 Restart Claude Code to see your statusbar.
 
 ## Configure
 
-Customize your statusbar interactively:
+### Option 1: Inside Claude Code (recommended)
+
+Install the skill, then use `/statusbar` to configure interactively:
 
 ```bash
-npx claude-code-statusbar configure
+npx skills add ashbrener/claude-code-statusbar
+```
+
+Then inside Claude Code, type `/statusbar` to install, configure, reset, or uninstall.
+
+### Option 2: From the terminal
+
+```bash
+npx github:ashbrener/claude-code-statusbar configure
 ```
 
 You can choose:
@@ -90,14 +100,14 @@ Colors shift at configurable thresholds (default **50%** yellow, **80%** red).
 ## Uninstall
 
 ```bash
-npx claude-code-statusbar uninstall
+npx github:ashbrener/claude-code-statusbar uninstall
 ```
 
 Uninstall restores your previous statusbar configuration if one existed before install.
 
 ## How it works
 
-The `npx` installer copies a bash script to `~/.claude/statusline-command.sh` and adds the `statusLine` config to `~/.claude/settings.json`. Claude Code runs the script on each render, piping session JSON to stdin.
+The installer copies a bash script to `~/.claude/statusline-command.sh` and adds the `statusLine` config to `~/.claude/settings.json`. Claude Code runs the script on each render, piping session JSON to stdin.
 
 The script reads an optional `~/.claude/statusbar-config.json` for customization, falling back to sensible defaults.
 
