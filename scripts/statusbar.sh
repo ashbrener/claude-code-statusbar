@@ -5,13 +5,13 @@
 # Colors shift based on usage thresholds.
 #
 # Receives JSON on stdin from Claude Code's statusLine command runner.
-# Configuration: ~/.claude/statusline-config.json (falls back to defaults.json)
+# Configuration: ~/.claude/statusbar-config.json (falls back to defaults.json)
 
 input=$(cat)
 
 # --- Load config (user override → defaults) ---
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-USER_CONFIG="${HOME}/.claude/statusline-config.json"
+USER_CONFIG="${HOME}/.claude/statusbar-config.json"
 DEFAULT_CONFIG="${SCRIPT_DIR}/defaults.json"
 
 if [ -f "$USER_CONFIG" ]; then

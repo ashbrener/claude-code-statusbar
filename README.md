@@ -47,7 +47,7 @@ You can choose:
 | **Labels** | Rename gauges — e.g. `ctx` → `window`, or override rate label |
 | **Thresholds** | When bars change intensity (default: 50%/80%) |
 
-Configuration is saved to `~/.claude/statusline-config.json`. Without a config file, the default style is used.
+Configuration is saved to `~/.claude/statusbar-config.json`. Without a config file, the default style is used.
 
 ### Example configs
 
@@ -99,7 +99,7 @@ Uninstall restores your previous statusbar configuration if one existed before i
 
 The `npx` installer copies a bash script to `~/.claude/statusline-command.sh` and adds the `statusLine` config to `~/.claude/settings.json`. Claude Code runs the script on each render, piping session JSON to stdin.
 
-The script reads an optional `~/.claude/statusline-config.json` for customization, falling back to sensible defaults.
+The script reads an optional `~/.claude/statusbar-config.json` for customization, falling back to sensible defaults.
 
 ## License
 

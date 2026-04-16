@@ -9,10 +9,10 @@ DEST_FILE="${CLAUDE_DIR}/statusline-command.sh"
 SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
 BACKUP_DIR="${CLAUDE_DIR}/.statusbar-backup"
 
-# --- Restore or remove statusline script ---
+# --- Restore or remove statusbar script ---
 if [ -f "${BACKUP_DIR}/statusline-command.sh" ]; then
     cp "${BACKUP_DIR}/statusline-command.sh" "$DEST_FILE"
-    echo "Restored: Previous statusline script from backup."
+    echo "Restored: Previous statusbar script from backup."
 elif [ -f "$DEST_FILE" ]; then
     rm "$DEST_FILE"
     echo "Removed: ${DEST_FILE}"
@@ -21,8 +21,8 @@ else
 fi
 
 # --- Restore or remove statusLine from settings ---
-if [ -f "${BACKUP_DIR}/statusline-settings.json" ]; then
-    BACKUP_CONFIG=$(jq -c '.statusLine' "${BACKUP_DIR}/statusline-settings.json")
+if [ -f "${BACKUP_DIR}/statusbar-settings.json" ]; then
+    BACKUP_CONFIG=$(jq -c '.statusLine' "${BACKUP_DIR}/statusbar-settings.json")
     if [ -f "$SETTINGS_FILE" ]; then
         jq --argjson sl "$BACKUP_CONFIG" '.statusLine = $sl' "$SETTINGS_FILE" > /tmp/cs.json && mv /tmp/cs.json "$SETTINGS_FILE"
         echo "Restored: Previous statusLine config in settings.json."

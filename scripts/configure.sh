@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CONFIG_FILE="${HOME}/.claude/statusline-config.json"
+CONFIG_FILE="${HOME}/.claude/statusbar-config.json"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULT_CONFIG="${SCRIPT_DIR}/defaults.json"
 

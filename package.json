@@ -20,7 +20,7 @@
   },
   "files": [
     "bin/",
-    "scripts/statusline.sh",
+    "scripts/statusbar.sh",
     "scripts/defaults.json"
   ],
   "engines": {

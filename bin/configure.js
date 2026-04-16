@@ -4,7 +4,7 @@ const os = require('os');
 const readline = require('readline');
 
 const CLAUDE_DIR = path.join(os.homedir(), '.claude');
-const CONFIG_FILE = path.join(CLAUDE_DIR, 'statusline-config.json');
+const CONFIG_FILE = path.join(CLAUDE_DIR, 'statusbar-config.json');
 const DEFAULT_CONFIG = path.resolve(__dirname, '..', 'scripts', 'defaults.json');
 
 function ask(rl, question) {

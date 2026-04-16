@@ -6,7 +6,7 @@ const CLAUDE_DIR = path.join(os.homedir(), '.claude');
 const DEST_FILE = path.join(CLAUDE_DIR, 'statusline-command.sh');
 const SETTINGS_FILE = path.join(CLAUDE_DIR, 'settings.json');
 const BACKUP_DIR = path.join(CLAUDE_DIR, '.statusbar-backup');
-const SOURCE_FILE = path.resolve(__dirname, '..', 'scripts', 'statusline.sh');
+const SOURCE_FILE = path.resolve(__dirname, '..', 'scripts', 'statusbar.sh');
 
 async function install() {
   console.log('Claude Code Statusbar: Installing...\n');
@@ -17,10 +17,10 @@ async function install() {
   }
 
   if (!fs.existsSync(SOURCE_FILE)) {
-    throw new Error(`statusline.sh not found at ${SOURCE_FILE}`);
+    throw new Error(`statusbar.sh not found at ${SOURCE_FILE}`);
   }
 
-  // Backup existing statusline if present
+  // Backup existing statusbar if present
   if (fs.existsSync(DEST_FILE)) {
     fs.mkdirSync(BACKUP_DIR, { recursive: true });
     fs.copyFileSync(DEST_FILE, path.join(BACKUP_DIR, 'statusline-command.sh'));
@@ -32,14 +32,14 @@ async function install() {
     if (settings.statusLine) {
       fs.mkdirSync(BACKUP_DIR, { recursive: true });
       fs.writeFileSync(
-        path.join(BACKUP_DIR, 'statusline-settings.json'),
+        path.join(BACKUP_DIR, 'statusbar-settings.json'),
         JSON.stringify({ statusLine: settings.statusLine }, null, 2)
       );
-      console.log(`Backup: Saved existing statusLine config to ${BACKUP_DIR}/statusline-settings.json`);
+      console.log(`Backup: Saved existing statusLine config to ${BACKUP_DIR}/statusbar-settings.json`);
     }
   }
 
-  // Install statusline script
+  // Install statusbar script
   fs.copyFileSync(SOURCE_FILE, DEST_FILE);
   fs.chmodSync(DEST_FILE, 0o755);
   console.log(`Installed: ${DEST_FILE}`);

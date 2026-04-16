@@ -15,7 +15,7 @@ fi
 # --- Determine install location ---
 CLAUDE_DIR="${HOME}/.claude"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_FILE="${SCRIPT_DIR}/statusline.sh"
+SOURCE_FILE="${SCRIPT_DIR}/statusbar.sh"
 DEST_FILE="${CLAUDE_DIR}/statusline-command.sh"
 SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
 
@@ -25,11 +25,11 @@ if [ ! -d "$CLAUDE_DIR" ]; then
 fi
 
 if [ ! -f "$SOURCE_FILE" ]; then
-    echo "Error: statusline.sh not found at ${SOURCE_FILE}"
+    echo "Error: statusbar.sh not found at ${SOURCE_FILE}"
     exit 1
 fi
 
-# --- Backup existing statusline if present ---
+# --- Backup existing statusbar if present ---
 BACKUP_DIR="${CLAUDE_DIR}/.statusbar-backup"
 if [ -f "$DEST_FILE" ]; then
     mkdir -p "$BACKUP_DIR"
@@ -39,11 +39,11 @@ fi
 
 if [ -f "$SETTINGS_FILE" ] && jq -e '.statusLine' "$SETTINGS_FILE" > /dev/null 2>&1; then
     mkdir -p "$BACKUP_DIR"
-    jq '{statusLine: .statusLine}' "$SETTINGS_FILE" > "${BACKUP_DIR}/statusline-settings.json"
-    echo "Backup: Saved existing statusLine config to ${BACKUP_DIR}/statusline-settings.json"
+    jq '{statusLine: .statusLine}' "$SETTINGS_FILE" > "${BACKUP_DIR}/statusbar-settings.json"
+    echo "Backup: Saved existing statusLine config to ${BACKUP_DIR}/statusbar-settings.json"
 fi
 
-# --- Install statusline script ---
+# --- Install statusbar script ---
 cp "$SOURCE_FILE" "$DEST_FILE"
 chmod +x "$DEST_FILE"
 echo "Installed: ${DEST_FILE}"

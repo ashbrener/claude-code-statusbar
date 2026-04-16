@@ -5,11 +5,11 @@ description: Customize the Claude Code statusbar — segments, order, colors, ba
 
 # Statusbar: Configure
 
-Customize the Claude Code statusbar by modifying `~/.claude/statusline-config.json` and `~/.claude/statusline-command.sh`.
+Customize the Claude Code statusbar by modifying `~/.claude/statusbar-config.json` and `~/.claude/statusline-command.sh`.
 
 ## Step 1: Show current configuration
 
-Read `~/.claude/statusline-config.json` if it exists. If not, show the defaults:
+Read `~/.claude/statusbar-config.json` if it exists. If not, show the defaults:
 
 | Setting | Default |
 |---------|---------|
@@ -79,7 +79,7 @@ Present the options and ask which they'd like to modify. They can change one thi
 
 ## Step 3: Update the config
 
-Save the updated configuration to `~/.claude/statusline-config.json`:
+Save the updated configuration to `~/.claude/statusbar-config.json`:
 
 ```json
 {
@@ -111,9 +111,9 @@ Save the updated configuration to `~/.claude/statusline-config.json`:
 
 Only include keys the user has customized. Omitted keys fall back to defaults.
 
-## Step 4: Update the statusline script
+## Step 4: Update the statusbar script
 
-Read the current `~/.claude/statusline-command.sh`. If it's the config-driven version (checks for `statusline-config.json`), no script update is needed.
+Read the current `~/.claude/statusline-command.sh`. If it's the config-driven version (checks for `statusbar-config.json`), no script update is needed.
 
 If it's the older hardcoded version, replace it with the config-driven version from `/statusbar-install`.
 
@@ -121,4 +121,4 @@ If it's the older hardcoded version, replace it with the config-driven version f
 
 Show what the statusbar will look like with the new settings. Remind the user to restart Claude Code.
 
-If they want to reset to defaults, delete `~/.claude/statusline-config.json` — the script falls back to built-in defaults automatically.
+If they want to reset to defaults, delete `~/.claude/statusbar-config.json` — the script falls back to built-in defaults automatically.

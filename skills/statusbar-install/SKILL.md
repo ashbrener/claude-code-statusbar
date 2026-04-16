@@ -1,6 +1,6 @@
 ---
 name: statusbar-install
-description: Install the Claude Code statusbar — copies statusline script and configures settings.json
+description: Install the Claude Code statusbar — copies statusbar script and configures settings.json
 ---
 
 # Statusbar: Install
@@ -12,21 +12,21 @@ Install the Claude Code statusbar with sensible defaults.
 ### 1. Check prerequisites
 
 - Verify `~/.claude/` directory exists (Claude Code is installed)
-- Check that `jq` is available (needed by the statusline script at runtime)
+- Check that `jq` is available (needed by the statusbar script at runtime)
 - If `jq` is missing, tell the user: `brew install jq` (macOS) or `sudo apt install jq` (Linux)
 
-### 2. Backup existing statusline
+### 2. Backup existing statusbar
 
 If `~/.claude/statusline-command.sh` already exists:
 - Create `~/.claude/.statusbar-backup/` directory
 - Copy the existing script there
 
 If `~/.claude/settings.json` has a `statusLine` key:
-- Save `{"statusLine": <current value>}` to `~/.claude/.statusbar-backup/statusline-settings.json`
+- Save `{"statusLine": <current value>}` to `~/.claude/.statusbar-backup/statusbar-settings.json`
 
 Tell the user what was backed up so they know uninstall will restore it.
 
-### 3. Install the statusline script
+### 3. Install the statusbar script
 
 Write the following script to `~/.claude/statusline-command.sh` and make it executable (`chmod +x`):
 
