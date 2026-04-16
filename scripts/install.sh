@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Claude Code Status Bar: Installing..."
+echo "Claude Code Statusbar: Installing..."
 echo ""
 
 # --- Check dependencies ---
@@ -76,14 +76,14 @@ fi
 if [ -f "$SETTINGS_FILE" ] && jq -e '.disableAllHooks == true' "$SETTINGS_FILE" > /dev/null 2>&1; then
     echo ""
     echo "Warning: disableAllHooks is set to true in your settings."
-    echo "  The status bar will NOT display until you set it to false:"
+    echo "  The statusbar will NOT display until you set it to false:"
     echo "  jq '.disableAllHooks = false' ~/.claude/settings.json > /tmp/cs.json && mv /tmp/cs.json ~/.claude/settings.json"
 fi
 
 echo ""
-echo "Claude Code Status Bar installed successfully."
+echo "Claude Code Statusbar installed successfully."
 echo ""
-echo "Restart Claude Code to see your status bar:"
+echo "Restart Claude Code to see your statusbar:"
 echo ""
 echo "  Opus 4.6  5hr:██░░░░░░░░ 12%  ctx:██░░░░░░░░ 24%  Code/myproject  main"
 echo ""

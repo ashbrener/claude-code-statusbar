@@ -1,11 +1,11 @@
 ---
 name: statusbar-configure
-description: Customize the Claude Code status bar — segments, order, colors, bar style, thresholds
+description: Customize the Claude Code statusbar — segments, order, colors, bar style, thresholds
 ---
 
-# Status Bar: Configure
+# Statusbar: Configure
 
-Customize the Claude Code status bar by modifying `~/.claude/statusline-config.json` and `~/.claude/statusline-command.sh`.
+Customize the Claude Code statusbar by modifying `~/.claude/statusline-config.json` and `~/.claude/statusline-command.sh`.
 
 ## Step 1: Show current configuration
 
@@ -23,7 +23,7 @@ Read `~/.claude/statusline-config.json` if it exists. If not, show the defaults:
 | Context color | Bright blue |
 | Branch color | Bright green |
 
-Show a preview of the current status bar appearance.
+Show a preview of the current statusbar appearance.
 
 ## Step 2: Ask what the user wants to change
 
@@ -119,6 +119,6 @@ If it's the older hardcoded version, replace it with the config-driven version f
 
 ## Step 5: Preview and confirm
 
-Show what the status bar will look like with the new settings. Remind the user to restart Claude Code.
+Show what the statusbar will look like with the new settings. Remind the user to restart Claude Code.
 
 If they want to reset to defaults, delete `~/.claude/statusline-config.json` — the script falls back to built-in defaults automatically.

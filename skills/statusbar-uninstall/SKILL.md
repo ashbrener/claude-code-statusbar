@@ -1,11 +1,11 @@
 ---
 name: statusbar-uninstall
-description: Remove the Claude Code status bar and restore any previous statusline configuration
+description: Remove the Claude Code statusbar and restore any previous statusline configuration
 ---
 
-# Status Bar: Uninstall
+# Statusbar: Uninstall
 
-Remove the Claude Code status bar and restore the user's previous configuration if one was backed up.
+Remove the Claude Code statusbar and restore the user's previous configuration if one was backed up.
 
 ## Step 1: Check for backup
 
@@ -18,12 +18,12 @@ Look for `~/.claude/.statusbar-backup/` directory:
 ### If backup exists:
 - Copy `~/.claude/.statusbar-backup/statusline-command.sh` back to `~/.claude/statusline-command.sh`
 - Read the backed-up `statusLine` value from `statusline-settings.json` and write it back into `~/.claude/settings.json`
-- Tell the user their previous status bar has been restored
+- Tell the user their previous statusbar has been restored
 
 ### If no backup:
 - Delete `~/.claude/statusline-command.sh`
 - Remove the `statusLine` key from `~/.claude/settings.json` (preserve all other settings)
-- Tell the user the status bar has been removed
+- Tell the user the statusbar has been removed
 
 ## Step 3: Clean up
 

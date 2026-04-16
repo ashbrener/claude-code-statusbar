@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Claude Code Status Bar — https://github.com/ashbrener/claude-code-statusbar
+# Claude Code Statusbar — https://github.com/ashbrener/claude-code-statusbar
 #
-# Displays a configurable status bar with model, rate limits, context, directory, and git branch.
+# Displays a configurable statusbar with model, rate limits, context, directory, and git branch.
 # Colors shift based on usage thresholds.
 #
 # Receives JSON on stdin from Claude Code's statusLine command runner.

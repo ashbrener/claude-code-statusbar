@@ -1,7 +1,7 @@
 {
   "name": "claude-code-statusbar",
   "version": "1.0.0",
-  "description": "Configurable status bar for Claude Code — model, rate limits, context, directory, git branch",
+  "description": "Configurable statusbar for Claude Code — model, rate limits, context, directory, git branch",
   "bin": {
     "claude-code-statusbar": "./bin/cli.js"
   },

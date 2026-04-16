@@ -1,6 +1,6 @@
-# Claude Code Status Bar
+# Claude Code Statusbar
 
-A configurable status bar for [Claude Code](https://claude.ai/code) that keeps you informed without breaking your flow.
+A configurable statusbar for [Claude Code](https://claude.ai/code) that keeps you informed without breaking your flow.
 
 ```
 Opus 4.6  5hr:██░░░░░░░░ 12%  ctx:██░░░░░░░░ 24%  Code/myproject  main
@@ -10,7 +10,7 @@ Opus 4.6  5hr:██░░░░░░░░ 12%  ctx:██░░░░░░�
 
 Claude Code doesn't show you how close you are to hitting rate limits or running out of context window — two things that directly affect your session. You find out when it's too late: a rate limit error kills your momentum, or context gets compacted and Claude loses track of what you were doing.
 
-This status bar gives you a persistent, at-a-glance view of:
+This statusbar gives you a persistent, at-a-glance view of:
 
 - **Rate limits** — so you can pace yourself or wrap up before you're throttled
 - **Context window** — so you know when to `/compact` or start a new session
@@ -24,11 +24,11 @@ It's configurable — choose which segments to show, customize labels and bar st
 npx claude-code-statusbar
 ```
 
-Restart Claude Code to see your status bar.
+Restart Claude Code to see your statusbar.
 
 ## Configure
 
-Customize your status bar interactively:
+Customize your statusbar interactively:
 
 ```bash
 npx claude-code-statusbar configure
@@ -93,7 +93,7 @@ Colors shift at configurable thresholds (default **50%** yellow, **80%** red).
 npx claude-code-statusbar uninstall
 ```
 
-Uninstall restores your previous status bar configuration if one existed before install.
+Uninstall restores your previous statusbar configuration if one existed before install.
 
 ## How it works
 

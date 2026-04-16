@@ -9,7 +9,7 @@ const BACKUP_DIR = path.join(CLAUDE_DIR, '.statusbar-backup');
 const SOURCE_FILE = path.resolve(__dirname, '..', 'scripts', 'statusline.sh');
 
 async function install() {
-  console.log('Claude Code Status Bar: Installing...\n');
+  console.log('Claude Code Statusbar: Installing...\n');
 
   // Check Claude Code is installed
   if (!fs.existsSync(CLAUDE_DIR)) {
@@ -67,9 +67,9 @@ async function install() {
   }
 
   console.log('');
-  console.log('Claude Code Status Bar installed successfully.');
+  console.log('Claude Code Statusbar installed successfully.');
   console.log('');
-  console.log('Restart Claude Code to see your status bar:');
+  console.log('Restart Claude Code to see your statusbar:');
   console.log('');
   console.log('  Opus 4.6  5hr:██░░░░░░░░ 12%  ctx:██░░░░░░░░ 24%  Code/myproject  main');
   console.log('');

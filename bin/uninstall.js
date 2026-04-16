@@ -9,7 +9,7 @@ const CONFIG_FILE = path.join(CLAUDE_DIR, 'statusline-config.json');
 const BACKUP_DIR = path.join(CLAUDE_DIR, '.statusbar-backup');
 
 async function uninstall() {
-  console.log('Claude Code Status Bar: Uninstalling...\n');
+  console.log('Claude Code Statusbar: Uninstalling...\n');
 
   const backupScript = path.join(BACKUP_DIR, 'statusline-command.sh');
   const backupSettings = path.join(BACKUP_DIR, 'statusline-settings.json');

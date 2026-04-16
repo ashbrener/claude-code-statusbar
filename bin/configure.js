@@ -14,7 +14,7 @@ function ask(rl, question) {
 async function configure() {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-  console.log('Claude Code Status Bar — Configuration\n');
+  console.log('Claude Code Statusbar — Configuration\n');
 
   // Load current or default config
   let config;

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Claude Code Status Bar: Uninstalling..."
+echo "Claude Code Statusbar: Uninstalling..."
 echo ""
 
 CLAUDE_DIR="${HOME}/.claude"

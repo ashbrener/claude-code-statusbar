@@ -5,7 +5,7 @@ CONFIG_FILE="${HOME}/.claude/statusline-config.json"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULT_CONFIG="${SCRIPT_DIR}/defaults.json"
 
-echo "Claude Code Status Bar — Configuration"
+echo "Claude Code Statusbar — Configuration"
 echo ""
 
 # --- Load current or default config ---

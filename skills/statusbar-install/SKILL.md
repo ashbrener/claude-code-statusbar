@@ -1,11 +1,11 @@
 ---
 name: statusbar-install
-description: Install the Claude Code status bar — copies statusline script and configures settings.json
+description: Install the Claude Code statusbar — copies statusline script and configures settings.json
 ---
 
-# Status Bar: Install
+# Statusbar: Install
 
-Install the Claude Code status bar with sensible defaults.
+Install the Claude Code statusbar with sensible defaults.
 
 ## Steps
 
@@ -109,7 +109,7 @@ Do not overwrite other settings — merge the key in.
 
 If `disableAllHooks` is `true` in settings.json, warn the user:
 
-> **Warning:** `disableAllHooks` is set to `true`. The status bar won't display until this is set to `false`. Want me to change it?
+> **Warning:** `disableAllHooks` is set to `true`. The statusbar won't display until this is set to `false`. Want me to change it?
 
 If the user agrees, set it to `false`.
 

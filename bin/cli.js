@@ -12,7 +12,7 @@ const commands = {
   configure,
   help() {
     console.log(`
-Claude Code Status Bar
+Claude Code Statusbar
 
 Usage:
   npx claude-code-statusbar              Install with defaults
