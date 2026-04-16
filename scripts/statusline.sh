@@ -59,6 +59,8 @@ T_CRIT=$(cfg '.thresholds.critical' '80')
 BAR_FILL=$(cfg '.bar.filled' '█')
 BAR_EMPTY=$(cfg '.bar.empty' '░')
 BAR_WIDTH=$(cfg '.bar.width' '10')
+L_RATE=$(cfg '.labels.rate' 'auto')
+L_CTX=$(cfg '.labels.context' 'ctx')
 DIR_REL=$(cfg '.directory.relative_to' 'home')
 
 RESET="\033[0m"
@@ -105,14 +107,16 @@ for seg in $SEGMENTS; do
     rate)
       if [ -n "$rate_pct" ]; then
         col=$(threshold_color "$rate_pct" "$C_RATE")
-        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${rate_label}:${RESET}${col}$(bar "$rate_pct") $(printf '%.0f' "$rate_pct")%${RESET}")"
+        display_label="$rate_label"
+        [ "$L_RATE" != "auto" ] && display_label="$L_RATE"
+        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${display_label}:${RESET}${col}$(bar "$rate_pct") $(printf '%.0f' "$rate_pct")%${RESET}")"
         sep="  "
       fi
       ;;
     context)
       if [ -n "$used_ctx" ]; then
         col=$(threshold_color "$used_ctx" "$C_CTX")
-        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")ctx:${RESET}${col}$(bar "$used_ctx") $(printf '%.0f' "$used_ctx")%${RESET}")"
+        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${L_CTX}:${RESET}${col}$(bar "$used_ctx") $(printf '%.0f' "$used_ctx")%${RESET}")"
         sep="  "
       fi
       ;;

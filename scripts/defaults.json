@@ -19,6 +19,10 @@
     "empty": "░",
     "width": 10
   },
+  "labels": {
+    "rate": "auto",
+    "context": "ctx"
+  },
   "directory": {
     "relative_to": "home"
   }

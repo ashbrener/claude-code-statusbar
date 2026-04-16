@@ -1,0 +1,114 @@
+---
+name: statusbar-configure
+description: Customize the Claude Code status bar — segments, order, colors, bar style, thresholds
+---
+
+# Status Bar: Configure
+
+Customize the Claude Code status bar by modifying `~/.claude/statusline-config.json` and `~/.claude/statusline-command.sh`.
+
+## Step 1: Show current configuration
+
+Read `~/.claude/statusline-config.json` if it exists. If not, show the defaults:
+
+| Setting | Default |
+|---------|---------|
+| Segments | model, rate, context, directory, branch |
+| Bar style | `██░░░░░░░░` |
+| Bar width | 10 |
+| Directory | Relative to `~/` |
+| Warning threshold | 50% |
+| Critical threshold | 80% |
+| Rate color | Bright magenta |
+| Context color | Bright blue |
+| Branch color | Bright green |
+
+Show a preview of the current status bar appearance.
+
+## Step 2: Ask what the user wants to change
+
+Present the options and ask which they'd like to modify. They can change one thing or several:
+
+### Segments
+- **Available:** `model`, `rate`, `context`, `directory`, `branch`
+- User can pick which to show and in what order
+- Example: "just model and context" → `["model", "context"]`
+
+### Bar style
+- `██░░` (default blocks)
+- `■■□□` (squares)
+- `●●○○` (circles)
+- `##--` (ASCII)
+- Custom characters
+
+### Bar width
+- Number of characters (default 10)
+
+### Directory display
+- Relative to `~/` (default)
+- Full absolute path
+- Relative to a custom prefix (e.g. strip `~/Code/`)
+
+### Labels
+- **Rate limit label:** `auto` (default — derived from the rate limit window, e.g. `5hr`) or a custom string
+- **Context label:** `ctx` (default) or a custom string like `window`, `tokens`, etc.
+- Example: user says "change ctx to window" → set `labels.context` to `window`
+
+### Color thresholds
+- Warning (yellow): default 50%
+- Critical (red): default 80%
+
+### Colors (ANSI codes)
+- Model: 96 (bright cyan)
+- Rate: 95 (bright magenta)
+- Context: 94 (bright blue)
+- Directory: 2 (dim)
+- Branch: 92 (bright green)
+- Warning: 93 (bright yellow)
+- Critical: 91 (bright red)
+
+## Step 3: Update the config
+
+Save the updated configuration to `~/.claude/statusline-config.json`:
+
+```json
+{
+  "segments": ["model", "rate", "context", "directory", "branch"],
+  "colors": {
+    "model": "96",
+    "rate": "95",
+    "context": "94",
+    "directory": "2",
+    "branch": "92",
+    "warning": "93",
+    "critical": "91",
+    "label": "2"
+  },
+  "thresholds": {
+    "warning": 50,
+    "critical": 80
+  },
+  "bar": {
+    "filled": "█",
+    "empty": "░",
+    "width": 10
+  },
+  "directory": {
+    "relative_to": "home"
+  }
+}
+```
+
+Only include keys the user has customized. Omitted keys fall back to defaults.
+
+## Step 4: Update the statusline script
+
+Read the current `~/.claude/statusline-command.sh`. If it's the config-driven version (checks for `statusline-config.json`), no script update is needed.
+
+If it's the older hardcoded version, replace it with the config-driven version from `/statusbar-install`.
+
+## Step 5: Preview and confirm
+
+Show what the status bar will look like with the new settings. Remind the user to restart Claude Code.
+
+If they want to reset to defaults, delete `~/.claude/statusline-config.json` — the script falls back to built-in defaults automatically.

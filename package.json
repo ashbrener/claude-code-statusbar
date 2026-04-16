@@ -1,0 +1,29 @@
+{
+  "name": "claude-code-statusbar",
+  "version": "1.0.0",
+  "description": "Configurable status bar for Claude Code — model, rate limits, context, directory, git branch",
+  "bin": {
+    "claude-code-statusbar": "./bin/cli.js"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "statusbar",
+    "status-line",
+    "cli"
+  ],
+  "author": "Ash Brener",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashbrener/claude-code-statusbar.git"
+  },
+  "files": [
+    "bin/",
+    "scripts/statusline.sh",
+    "scripts/defaults.json"
+  ],
+  "engines": {
+    "node": ">=16"
+  }
+}

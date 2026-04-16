@@ -9,19 +9,17 @@ Opus 4.6  5hr:██░░░░░░░░ 12%  ctx:██░░░░░░�
 ## Install
 
 ```bash
-git clone https://github.com/ashbrener/claude-code-statusbar.git
-cd claude-code-statusbar
-bash scripts/install.sh
+npx claude-code-statusbar
 ```
 
 Restart Claude Code to see your status bar.
 
 ## Configure
 
-Run the interactive configurator to customize your status bar:
+Customize your status bar interactively:
 
 ```bash
-bash scripts/configure.sh
+npx claude-code-statusbar configure
 ```
 
 You can choose:
@@ -74,37 +72,25 @@ Configuration is saved to `~/.claude/statusline-config.json`. Without a config f
 
 Colors shift at configurable thresholds (default **50%** yellow, **80%** red).
 
-## Requirements
-
-- [Claude Code](https://claude.ai/code) v2.1+
-- [jq](https://jqlang.github.io/jq/)
-- `disableAllHooks` must be `false` in `~/.claude/settings.json`
-
 ## Uninstall
 
 ```bash
-bash scripts/uninstall.sh
+npx claude-code-statusbar uninstall
 ```
 
 Uninstall restores your previous status bar configuration if one existed before install.
 
-## Files
+## Requirements
 
-```
-claude-code-statusbar/
-├── scripts/
-│   ├── install.sh        # Backs up existing config, installs statusline
-│   ├── uninstall.sh      # Restores previous config from backup
-│   ├── configure.sh      # Interactive style configurator
-│   ├── statusline.sh     # The status bar script
-│   └── defaults.json     # Default configuration
-└── README.md
-```
+- [Claude Code](https://claude.ai/code) v2.1+
+- Node.js 16+ (for npx install/configure)
+- `disableAllHooks` must be `false` in `~/.claude/settings.json`
 
-After install, these are created in `~/.claude/`:
-- `statusline-command.sh` — the active script
-- `statusline-config.json` — your customizations (if configured)
-- `.statusbar-backup/` — backup of previous statusline (if any)
+## How it works
+
+The `npx` installer copies a bash script to `~/.claude/statusline-command.sh` and adds the `statusLine` config to `~/.claude/settings.json`. Claude Code runs the script on each render, piping session JSON to stdin.
+
+The script reads an optional `~/.claude/statusline-config.json` for customization, falling back to sensible defaults.
 
 ## License
 
