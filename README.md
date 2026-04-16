@@ -1,10 +1,22 @@
 # Claude Code Status Bar
 
-A configurable status bar for [Claude Code](https://claude.ai/code) that shows model, rate limits, context usage, directory, and git branch at a glance.
+A configurable status bar for [Claude Code](https://claude.ai/code) that keeps you informed without breaking your flow.
 
 ```
 Opus 4.6  5hr:██░░░░░░░░ 12%  ctx:██░░░░░░░░ 24%  Code/myproject  main
 ```
+
+## Why?
+
+Claude Code doesn't show you how close you are to hitting rate limits or running out of context window — two things that directly affect your session. You find out when it's too late: a rate limit error kills your momentum, or context gets compacted and Claude loses track of what you were doing.
+
+This status bar gives you a persistent, at-a-glance view of:
+
+- **Rate limits** — so you can pace yourself or wrap up before you're throttled
+- **Context window** — so you know when to `/compact` or start a new session
+- **Model, directory, branch** — so you always know where you are
+
+It's configurable — choose which segments to show, customize labels and bar styles, display as "used" or "remaining", and pick your own color scheme.
 
 ## Install
 
@@ -30,7 +42,10 @@ You can choose:
 | **Bar style** | `██░░` (default), `■■□□`, `●●○○`, `##--`, or custom characters |
 | **Bar width** | Number of characters (default: 10) |
 | **Directory** | Relative to `~/` (default), absolute, or strip a custom prefix |
-| **Thresholds** | When bars turn yellow/red (default: 50%/80%) |
+| **Display mode** | `used` (24% consumed) or `remaining` (76% available) |
+| **Color ramp** | `same` (brightens in gauge color) or `red` (shifts to yellow/red) |
+| **Labels** | Rename gauges — e.g. `ctx` → `window`, or override rate label |
+| **Thresholds** | When bars change intensity (default: 50%/80%) |
 
 Configuration is saved to `~/.claude/statusline-config.json`. Without a config file, the default style is used.
 
@@ -79,12 +94,6 @@ npx claude-code-statusbar uninstall
 ```
 
 Uninstall restores your previous status bar configuration if one existed before install.
-
-## Requirements
-
-- [Claude Code](https://claude.ai/code) v2.1+
-- Node.js 16+ (for npx install/configure)
-- `disableAllHooks` must be `false` in `~/.claude/settings.json`
 
 ## How it works
 

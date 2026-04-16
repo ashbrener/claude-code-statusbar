@@ -10,6 +10,10 @@
     "critical": "91",
     "label": "2"
   },
+  "display": {
+    "mode": "used",
+    "color_ramp": "same"
+  },
   "thresholds": {
     "warning": 50,
     "critical": 80

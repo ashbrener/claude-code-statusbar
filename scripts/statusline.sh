@@ -61,17 +61,44 @@ BAR_EMPTY=$(cfg '.bar.empty' '░')
 BAR_WIDTH=$(cfg '.bar.width' '10')
 L_RATE=$(cfg '.labels.rate' 'auto')
 L_CTX=$(cfg '.labels.context' 'ctx')
+DISPLAY_MODE=$(cfg '.display.mode' 'used')
+COLOR_RAMP=$(cfg '.display.color_ramp' 'same')
 DIR_REL=$(cfg '.directory.relative_to' 'home')
 
-RESET="\033[0m"
+RESET="\033[0m"; BOLD="\033[1m"
 
 color() { printf "\033[%sm" "$1"; }
 
+# Color ramp: "same" brightens the base color, "red" shifts to warning/critical colors
 threshold_color() {
   local val=$(printf "%.0f" "$1") base="$2"
-  [ "$val" -ge "$T_CRIT" ] && color "$C_CRIT" && return
-  [ "$val" -ge "$T_WARN" ] && color "$C_WARN" && return
-  color "$base"
+  if [ "$COLOR_RAMP" = "same" ]; then
+    # Same-color ramp: dim → normal → bold
+    [ "$val" -ge "$T_CRIT" ] && printf "\033[1;%sm" "$base" && return
+    [ "$val" -ge "$T_WARN" ] && color "$base" && return
+    printf "\033[2;%sm" "$base"
+  else
+    [ "$val" -ge "$T_CRIT" ] && color "$C_CRIT" && return
+    [ "$val" -ge "$T_WARN" ] && color "$C_WARN" && return
+    color "$base"
+  fi
+}
+
+# Flip percentage for "remaining" display mode
+display_pct() {
+  local used="$1"
+  if [ "$DISPLAY_MODE" = "remaining" ]; then
+    echo "$(( 100 - $(printf "%.0f" "$used") ))"
+  else
+    printf "%.0f" "$used"
+  fi
+}
+
+# For color thresholds, always use "used" perspective
+# (high used = hot, high remaining = cool)
+color_pct() {
+  local used="$1"
+  printf "%.0f" "$used"
 }
 
 bar() {
@@ -106,17 +133,19 @@ for seg in $SEGMENTS; do
       ;;
     rate)
       if [ -n "$rate_pct" ]; then
-        col=$(threshold_color "$rate_pct" "$C_RATE")
+        col=$(threshold_color "$(color_pct "$rate_pct")" "$C_RATE")
+        show_pct=$(display_pct "$rate_pct")
         display_label="$rate_label"
         [ "$L_RATE" != "auto" ] && display_label="$L_RATE"
-        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${display_label}:${RESET}${col}$(bar "$rate_pct") $(printf '%.0f' "$rate_pct")%${RESET}")"
+        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${display_label}:${RESET}${col}$(bar "$show_pct") ${show_pct}%${RESET}")"
         sep="  "
       fi
       ;;
     context)
       if [ -n "$used_ctx" ]; then
-        col=$(threshold_color "$used_ctx" "$C_CTX")
-        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${L_CTX}:${RESET}${col}$(bar "$used_ctx") $(printf '%.0f' "$used_ctx")%${RESET}")"
+        col=$(threshold_color "$(color_pct "$used_ctx")" "$C_CTX")
+        show_pct=$(display_pct "$used_ctx")
+        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${L_CTX}:${RESET}${col}$(bar "$show_pct") ${show_pct}%${RESET}")"
         sep="  "
       fi
       ;;

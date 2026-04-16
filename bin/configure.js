@@ -92,6 +92,24 @@ async function configure() {
       break;
   }
 
+  // --- Display mode ---
+  config.display = config.display || { mode: 'used', color_ramp: 'same' };
+  console.log('\nPercentage display:');
+  console.log('  1) used — "ctx: 24%" means 24% consumed (default)');
+  console.log('  2) remaining — "ctx: 76%" means 76% available');
+  console.log(`  Current: ${config.display.mode}`);
+  const modeChoice = await ask(rl, '> ');
+  if (modeChoice.trim() === '2') config.display.mode = 'remaining';
+  else if (modeChoice.trim() === '1') config.display.mode = 'used';
+
+  console.log('\nColor ramp:');
+  console.log('  1) same — gauge brightens in its own color (default)');
+  console.log('  2) red — shifts to yellow then red at thresholds');
+  console.log(`  Current: ${config.display.color_ramp}`);
+  const rampChoice = await ask(rl, '> ');
+  if (rampChoice.trim() === '2') config.display.color_ramp = 'red';
+  else if (rampChoice.trim() === '1') config.display.color_ramp = 'same';
+
   // --- Labels ---
   config.labels = config.labels || { rate: 'auto', context: 'ctx' };
   console.log(`\nGauge labels:`);
@@ -129,10 +147,13 @@ async function configure() {
   };
 
   console.log('\nPreview:');
-  const rl2 = config.labels || {};
-  const rLabel = rl2.rate === 'auto' ? '5hr' : (rl2.rate || '5hr');
-  const cLabel = rl2.context || 'ctx';
-  console.log(`  Opus 4.6  ${rLabel}:${sampleBar(20)} 20%  ${cLabel}:${sampleBar(30)} 30%  Code/myproject  main`);
+  const labels = config.labels || {};
+  const rLabel = labels.rate === 'auto' ? '5hr' : (labels.rate || '5hr');
+  const cLabel = labels.context || 'ctx';
+  const isRemaining = config.display.mode === 'remaining';
+  const rPct = isRemaining ? 80 : 20;
+  const cPct = isRemaining ? 70 : 30;
+  console.log(`  Opus 4.6  ${rLabel}:${sampleBar(rPct)} ${rPct}%  ${cLabel}:${sampleBar(cPct)} ${cPct}%  Code/myproject  main`);
   console.log('\nRestart Claude Code to apply.');
 }
 

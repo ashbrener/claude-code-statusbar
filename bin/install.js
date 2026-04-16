@@ -66,13 +66,6 @@ async function install() {
     console.log(`Settings: ${current ? 'Updated' : 'Added'} statusLine in ${SETTINGS_FILE}`);
   }
 
-  // Warn about disableAllHooks
-  if (settings.disableAllHooks === true) {
-    console.log('');
-    console.log('Warning: disableAllHooks is set to true in your settings.');
-    console.log('  The status bar will NOT display until you set it to false.');
-  }
-
   console.log('');
   console.log('Claude Code Status Bar installed successfully.');
   console.log('');

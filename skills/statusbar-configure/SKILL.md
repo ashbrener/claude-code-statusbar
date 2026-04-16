@@ -49,6 +49,16 @@ Present the options and ask which they'd like to modify. They can change one thi
 - Full absolute path
 - Relative to a custom prefix (e.g. strip `~/Code/`)
 
+### Display mode
+- **used** (default): shows percentage consumed (e.g. `ctx: 24%` = 24% used)
+- **remaining**: shows percentage left (e.g. `ctx: 76%` = 76% available)
+- This affects both the bar fill and the percentage number
+- Color always tracks usage — high usage = brighter/hotter regardless of display mode
+
+### Color ramp
+- **same** (default): gauge stays its own color, brightening as usage increases (dim → normal → bold)
+- **red**: traditional approach — shifts from base color to yellow at warning, red at critical
+
 ### Labels
 - **Rate limit label:** `auto` (default — derived from the rate limit window, e.g. `5hr`) or a custom string
 - **Context label:** `ctx` (default) or a custom string like `window`, `tokens`, etc.
