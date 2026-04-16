@@ -3,7 +3,7 @@ const path = require('path');
 const os = require('os');
 
 const CLAUDE_DIR = path.join(os.homedir(), '.claude');
-const DEST_FILE = path.join(CLAUDE_DIR, 'statusline-command.sh');
+const DEST_FILE = path.join(CLAUDE_DIR, 'statusbar-command.sh');
 const SETTINGS_FILE = path.join(CLAUDE_DIR, 'settings.json');
 const CONFIG_FILE = path.join(CLAUDE_DIR, 'statusbar-config.json');
 const BACKUP_DIR = path.join(CLAUDE_DIR, '.statusbar-backup');
@@ -11,7 +11,7 @@ const BACKUP_DIR = path.join(CLAUDE_DIR, '.statusbar-backup');
 async function uninstall() {
   console.log('Claude Code Statusbar: Uninstalling...\n');
 
-  const backupScript = path.join(BACKUP_DIR, 'statusline-command.sh');
+  const backupScript = path.join(BACKUP_DIR, 'statusbar-command.sh');
   const backupSettings = path.join(BACKUP_DIR, 'statusbar-settings.json');
 
   // Restore or remove statusbar script

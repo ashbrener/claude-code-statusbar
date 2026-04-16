@@ -16,7 +16,7 @@ fi
 CLAUDE_DIR="${HOME}/.claude"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_FILE="${SCRIPT_DIR}/statusbar.sh"
-DEST_FILE="${CLAUDE_DIR}/statusline-command.sh"
+DEST_FILE="${CLAUDE_DIR}/statusbar-command.sh"
 SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
 
 if [ ! -d "$CLAUDE_DIR" ]; then
@@ -33,8 +33,8 @@ fi
 BACKUP_DIR="${CLAUDE_DIR}/.statusbar-backup"
 if [ -f "$DEST_FILE" ]; then
     mkdir -p "$BACKUP_DIR"
-    cp "$DEST_FILE" "${BACKUP_DIR}/statusline-command.sh"
-    echo "Backup: Saved existing script to ${BACKUP_DIR}/statusline-command.sh"
+    cp "$DEST_FILE" "${BACKUP_DIR}/statusbar-command.sh"
+    echo "Backup: Saved existing script to ${BACKUP_DIR}/statusbar-command.sh"
 fi
 
 if [ -f "$SETTINGS_FILE" ] && jq -e '.statusLine' "$SETTINGS_FILE" > /dev/null 2>&1; then
@@ -49,7 +49,7 @@ chmod +x "$DEST_FILE"
 echo "Installed: ${DEST_FILE}"
 
 # --- Update settings.json ---
-STATUSLINE_CONFIG='{"type":"command","command":"bash ~/.claude/statusline-command.sh"}'
+STATUSLINE_CONFIG='{"type":"command","command":"bash ~/.claude/statusbar-command.sh"}'
 
 if [ -f "$SETTINGS_FILE" ]; then
     EXISTING=$(cat "$SETTINGS_FILE")

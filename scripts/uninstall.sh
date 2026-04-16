@@ -5,13 +5,13 @@ echo "Claude Code Statusbar: Uninstalling..."
 echo ""
 
 CLAUDE_DIR="${HOME}/.claude"
-DEST_FILE="${CLAUDE_DIR}/statusline-command.sh"
+DEST_FILE="${CLAUDE_DIR}/statusbar-command.sh"
 SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
 BACKUP_DIR="${CLAUDE_DIR}/.statusbar-backup"
 
 # --- Restore or remove statusbar script ---
-if [ -f "${BACKUP_DIR}/statusline-command.sh" ]; then
-    cp "${BACKUP_DIR}/statusline-command.sh" "$DEST_FILE"
+if [ -f "${BACKUP_DIR}/statusbar-command.sh" ]; then
+    cp "${BACKUP_DIR}/statusbar-command.sh" "$DEST_FILE"
     echo "Restored: Previous statusbar script from backup."
 elif [ -f "$DEST_FILE" ]; then
     rm "$DEST_FILE"

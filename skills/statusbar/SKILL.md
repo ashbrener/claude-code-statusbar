@@ -10,7 +10,7 @@ A single command to manage the Claude Code statusbar. Detect current state and a
 ## Step 1: Detect current state
 
 Check if the statusbar is installed:
-- Does `~/.claude/statusline-command.sh` exist?
+- Does `~/.claude/statusbar-command.sh` exist?
 - Does `~/.claude/settings.json` contain a `statusLine` key?
 - Does `~/.claude/statusbar-config.json` exist?
 
@@ -67,7 +67,7 @@ Follow the steps from `/statusbar-uninstall`. Restore any backed-up configuratio
 
 ## Important
 
-- The statusbar script is installed at `~/.claude/statusline-command.sh` (Claude's expected filename)
+- The statusbar script is installed at `~/.claude/statusbar-command.sh` (Claude's expected filename)
 - The config is at `~/.claude/statusbar-config.json` (our config)
 - The settings.json key is `statusLine` (Claude's key name)
 - After any changes, remind the user to restart Claude Code

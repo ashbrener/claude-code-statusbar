@@ -107,7 +107,7 @@ Uninstall restores your previous statusbar configuration if one existed before i
 
 ## How it works
 
-The installer copies a bash script to `~/.claude/statusline-command.sh` and adds the `statusLine` config to `~/.claude/settings.json`. Claude Code runs the script on each render, piping session JSON to stdin.
+The installer copies a bash script to `~/.claude/statusbar-command.sh` and adds the `statusLine` config to `~/.claude/settings.json`. Claude Code runs the script on each render, piping session JSON to stdin.
 
 The script reads an optional `~/.claude/statusbar-config.json` for customization, falling back to sensible defaults.
 

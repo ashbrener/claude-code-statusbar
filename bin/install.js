@@ -3,7 +3,7 @@ const path = require('path');
 const os = require('os');
 
 const CLAUDE_DIR = path.join(os.homedir(), '.claude');
-const DEST_FILE = path.join(CLAUDE_DIR, 'statusline-command.sh');
+const DEST_FILE = path.join(CLAUDE_DIR, 'statusbar-command.sh');
 const SETTINGS_FILE = path.join(CLAUDE_DIR, 'settings.json');
 const BACKUP_DIR = path.join(CLAUDE_DIR, '.statusbar-backup');
 const SOURCE_FILE = path.resolve(__dirname, '..', 'scripts', 'statusbar.sh');
@@ -23,8 +23,8 @@ async function install() {
   // Backup existing statusbar if present
   if (fs.existsSync(DEST_FILE)) {
     fs.mkdirSync(BACKUP_DIR, { recursive: true });
-    fs.copyFileSync(DEST_FILE, path.join(BACKUP_DIR, 'statusline-command.sh'));
-    console.log(`Backup: Saved existing script to ${BACKUP_DIR}/statusline-command.sh`);
+    fs.copyFileSync(DEST_FILE, path.join(BACKUP_DIR, 'statusbar-command.sh'));
+    console.log(`Backup: Saved existing script to ${BACKUP_DIR}/statusbar-command.sh`);
   }
 
   if (fs.existsSync(SETTINGS_FILE)) {
@@ -47,7 +47,7 @@ async function install() {
   // Update settings.json
   const statusLineConfig = {
     type: 'command',
-    command: 'bash ~/.claude/statusline-command.sh'
+    command: 'bash ~/.claude/statusbar-command.sh'
   };
 
   let settings = {};
