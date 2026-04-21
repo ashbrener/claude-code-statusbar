@@ -7,6 +7,7 @@ const DEST_FILE = path.join(CLAUDE_DIR, 'statusbar-command.sh');
 const SETTINGS_FILE = path.join(CLAUDE_DIR, 'settings.json');
 const CONFIG_FILE = path.join(CLAUDE_DIR, 'statusbar-config.json');
 const BACKUP_DIR = path.join(CLAUDE_DIR, '.statusbar-backup');
+const SKILL_DIR = path.join(CLAUDE_DIR, 'skills', 'statusbar');
 
 async function uninstall() {
   console.log('Claude Code Statusbar: Uninstalling...\n');
@@ -49,6 +50,12 @@ async function uninstall() {
   if (fs.existsSync(CONFIG_FILE)) {
     fs.unlinkSync(CONFIG_FILE);
     console.log(`Removed: ${CONFIG_FILE}`);
+  }
+
+  // Remove installed skill
+  if (fs.existsSync(SKILL_DIR)) {
+    fs.rmSync(SKILL_DIR, { recursive: true });
+    console.log(`Removed: ${SKILL_DIR}`);
   }
 
   // Clean up backup directory

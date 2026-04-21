@@ -21,7 +21,10 @@
   "files": [
     "bin/",
     "scripts/statusbar.sh",
-    "scripts/defaults.json"
+    "scripts/defaults.json",
+    "skills/statusbar/SKILL.md",
+    "LICENSE",
+    "README.md"
   ],
   "engines": {
     "node": ">=16"

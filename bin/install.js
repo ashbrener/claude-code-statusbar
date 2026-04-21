@@ -7,6 +7,9 @@ const DEST_FILE = path.join(CLAUDE_DIR, 'statusbar-command.sh');
 const SETTINGS_FILE = path.join(CLAUDE_DIR, 'settings.json');
 const BACKUP_DIR = path.join(CLAUDE_DIR, '.statusbar-backup');
 const SOURCE_FILE = path.resolve(__dirname, '..', 'scripts', 'statusbar.sh');
+const SKILL_SOURCE = path.resolve(__dirname, '..', 'skills', 'statusbar', 'SKILL.md');
+const SKILL_DEST_DIR = path.join(CLAUDE_DIR, 'skills', 'statusbar');
+const SKILL_DEST_FILE = path.join(SKILL_DEST_DIR, 'SKILL.md');
 
 async function install() {
   console.log('Claude Code Statusbar: Installing...\n');
@@ -66,15 +69,23 @@ async function install() {
     console.log(`Settings: ${current ? 'Updated' : 'Added'} statusLine in ${SETTINGS_FILE}`);
   }
 
+  // Install the /statusbar skill
+  if (fs.existsSync(SKILL_SOURCE)) {
+    fs.mkdirSync(SKILL_DEST_DIR, { recursive: true });
+    fs.copyFileSync(SKILL_SOURCE, SKILL_DEST_FILE);
+    console.log(`Skill: Installed /statusbar at ${SKILL_DEST_FILE}`);
+  }
+
   console.log('');
   console.log('Claude Code Statusbar installed successfully.');
   console.log('');
   console.log('Restart Claude Code to see your statusbar:');
   console.log('');
-  console.log('  Opus 4.6  5hr:██░░░░░░░░ 12%  ctx:██░░░░░░░░ 24%  Code/myproject  main');
+  console.log('  ● Claude Opus 4.7  5hr:███░░░░░░░ 31%  ctx:████░░░░░░ 42%  Code/myproject   main !?');
   console.log('');
-  console.log('To customize:  npx claude-code-statusbar configure');
-  console.log('To uninstall:  npx claude-code-statusbar uninstall');
+  console.log('Inside Claude Code:  /statusbar         manage (configure / reset / uninstall)');
+  console.log('From terminal:       npx github:ashbrener/claude-code-statusbar configure');
+  console.log('To uninstall:        npx github:ashbrener/claude-code-statusbar uninstall');
 }
 
 module.exports = { install };

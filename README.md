@@ -32,13 +32,13 @@ Restart Claude Code to see your statusbar.
 
 ### Option 1: Inside Claude Code (recommended)
 
-Install the skill, then use `/statusbar` to configure interactively:
+The installer also drops a `/statusbar` skill into `~/.claude/skills/`. After restarting Claude Code, just type:
 
-```bash
-npx skills add ashbrener/claude-code-statusbar
+```
+/statusbar
 ```
 
-Then inside Claude Code, type `/statusbar` to install, configure, reset, or uninstall.
+…to install, configure, reset, or uninstall interactively.
 
 ### Option 2: From the terminal
 
