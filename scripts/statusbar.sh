@@ -5,19 +5,14 @@
 # Colors shift based on usage thresholds.
 #
 # Receives JSON on stdin from Claude Code's statusLine command runner.
-# Configuration: ~/.claude/statusbar-config.json (falls back to defaults.json)
+# Configuration: ~/.claude/statusbar-config.json (falls back to built-in defaults)
 
 input=$(cat)
 
-# --- Load config (user override → defaults) ---
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# --- Load config ---
 USER_CONFIG="${HOME}/.claude/statusbar-config.json"
-DEFAULT_CONFIG="${SCRIPT_DIR}/defaults.json"
-
 if [ -f "$USER_CONFIG" ]; then
   config=$(cat "$USER_CONFIG")
-elif [ -f "$DEFAULT_CONFIG" ]; then
-  config=$(cat "$DEFAULT_CONFIG")
 else
   config='{}'
 fi
@@ -51,6 +46,7 @@ C_RATE=$(cfg '.colors.rate' '95')
 C_CTX=$(cfg '.colors.context' '94')
 C_DIR=$(cfg '.colors.directory' '2')
 C_BRANCH=$(cfg '.colors.branch' '92')
+C_VPN=$(cfg '.colors.vpn' '92')
 C_WARN=$(cfg '.colors.warning' '93')
 C_CRIT=$(cfg '.colors.critical' '91')
 C_LABEL=$(cfg '.colors.label' '2')
@@ -65,15 +61,13 @@ DISPLAY_MODE=$(cfg '.display.mode' 'used')
 COLOR_RAMP=$(cfg '.display.color_ramp' 'same')
 DIR_REL=$(cfg '.directory.relative_to' 'home')
 
-RESET="\033[0m"; BOLD="\033[1m"
+RESET="\033[0m"
 
 color() { printf "\033[%sm" "$1"; }
 
-# Color ramp: "same" brightens the base color, "red" shifts to warning/critical colors
 threshold_color() {
   local val=$(printf "%.0f" "$1") base="$2"
   if [ "$COLOR_RAMP" = "same" ]; then
-    # Same-color ramp: dim → normal → bold
     [ "$val" -ge "$T_CRIT" ] && printf "\033[1;%sm" "$base" && return
     [ "$val" -ge "$T_WARN" ] && color "$base" && return
     printf "\033[2;%sm" "$base"
@@ -84,7 +78,6 @@ threshold_color() {
   fi
 }
 
-# Flip percentage for "remaining" display mode
 display_pct() {
   local used="$1"
   if [ "$DISPLAY_MODE" = "remaining" ]; then
@@ -94,12 +87,7 @@ display_pct() {
   fi
 }
 
-# For color thresholds, always use "used" perspective
-# (high used = hot, high remaining = cool)
-color_pct() {
-  local used="$1"
-  printf "%.0f" "$used"
-}
+color_pct() { printf "%.0f" "$1"; }
 
 bar() {
   local pct=$(printf "%.0f" "$1")
@@ -127,8 +115,19 @@ sep=""
 
 for seg in $SEGMENTS; do
   case "$seg" in
+    vpn)
+      if [[ "$OSTYPE" == darwin* ]]; then
+        vpn_active=$(scutil --nc list 2>/dev/null | grep -c '(Connected)')
+        if [ "$vpn_active" -gt 0 ]; then
+          out="${out}${sep}$(printf "%b" "$(color "$C_VPN")◉${RESET}")"
+        else
+          out="${out}${sep}$(printf "%b" "\033[2;${C_VPN}m○${RESET}")"
+        fi
+        sep="  "
+      fi
+      ;;
     model)
-      out="${out}${sep}$(printf "%b" "$(color "$C_MODEL")${model}${RESET}")"
+      out="${out}${sep}$(printf "%b" "$(color "$C_MODEL")● ${model}${RESET}")"
       sep="  "
       ;;
     rate)
@@ -158,7 +157,35 @@ for seg in $SEGMENTS; do
     branch)
       branch=$(git -C "$cwd" --no-optional-locks symbolic-ref --short HEAD 2>/dev/null)
       if [ -n "$branch" ]; then
-        out="${out}${sep}$(printf "%b" "$(color "$C_BRANCH")${branch}${RESET}")"
+        # Git status indicators
+        indicators=""
+        git_status=$(git -C "$cwd" --no-optional-locks status --porcelain=v1 2>/dev/null)
+        if [ -n "$git_status" ]; then
+          # Staged (index has changes)
+          echo "$git_status" | grep -q '^[MARCDU]' && indicators="${indicators}+"
+          # Modified (unstaged changes)
+          echo "$git_status" | grep -q '^.[MD]' && indicators="${indicators}!"
+          # Untracked
+          echo "$git_status" | grep -q '^??' && indicators="${indicators}?"
+          # Deleted
+          echo "$git_status" | grep -q '^[[:space:]]D\|^D' && indicators="${indicators}✘"
+          # Conflicts
+          echo "$git_status" | grep -q '^UU\|^AA\|^DD' && indicators="${indicators}×"
+        fi
+        # Stashed
+        git -C "$cwd" --no-optional-locks stash list 2>/dev/null | grep -q . && indicators="${indicators}⚑"
+        # Ahead / behind / diverged
+        counts=$(git -C "$cwd" --no-optional-locks rev-list --left-right --count "@{upstream}...HEAD" 2>/dev/null)
+        if [ -n "$counts" ]; then
+          behind=$(echo "$counts" | awk '{print $1}')
+          ahead=$(echo "$counts" | awk '{print $2}')
+          [ "$ahead" -gt 0 ] && [ "$behind" -gt 0 ] && indicators="${indicators}⇕" ||
+          { [ "$ahead" -gt 0 ] && indicators="${indicators}⇡"; [ "$behind" -gt 0 ] && indicators="${indicators}⇣"; }
+        fi
+        # Render
+        branch_str="${branch}"
+        [ -n "$indicators" ] && branch_str="${branch} ${indicators}"
+        out="${out}${sep}$(printf "%b" "$(color "$C_BRANCH")ᚦ ${branch_str}${RESET}")"
         sep="  "
       fi
       ;;
