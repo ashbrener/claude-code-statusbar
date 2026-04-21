@@ -3,7 +3,7 @@
 A configurable statusbar for [Claude Code](https://claude.ai/code) that keeps you informed without breaking your flow.
 
 ```
-Opus 4.6  5hr:██░░░░░░░░ 12%  ctx:██░░░░░░░░ 24%  Code/myproject  main
+● Claude Opus 4.5  5hr:███░░░░░░░ 31%  ctx:████░░░░░░ 42%  Code/myproject   main !?
 ```
 
 ## Why?
@@ -15,6 +15,8 @@ This statusbar gives you a persistent, at-a-glance view of:
 - **Rate limits** — so you can pace yourself or wrap up before you're throttled
 - **Context window** — so you know when to `/compact` or start a new session
 - **Model, directory, branch** — so you always know where you are
+- **Git status indicators** — modified, staged, untracked, ahead/behind, and more
+- **VPN indicator** (optional, macOS) — see at a glance whether your VPN is connected
 
 It's configurable — choose which segments to show, customize labels and bar styles, display as "used" or "remaining", and pick your own color scheme.
 
@@ -48,7 +50,7 @@ You can choose:
 
 | Option | Choices |
 |--------|---------|
-| **Segments** | `model`, `rate`, `context`, `directory`, `branch` — pick which to show and in what order |
+| **Segments** | `vpn`, `model`, `rate`, `context`, `directory`, `branch` — pick which to show and in what order |
 | **Bar style** | `██░░` (default), `■■□□`, `●●○○`, `##--`, or custom characters |
 | **Bar width** | Number of characters (default: 10) |
 | **Directory** | Relative to `~/` (default), absolute, or strip a custom prefix |
@@ -89,13 +91,34 @@ Configuration is saved to `~/.claude/statusbar-config.json`. Without a config fi
 
 | Segment | Source | Default Color |
 |---------|--------|---------------|
-| Model | `model.display_name` | Cyan |
+| VPN | macOS `scutil --nc list` (◉ connected / ○ disconnected) | Green |
+| Model | `model.display_name`, prefixed with `●` | Cyan |
 | Rate limit | Auto-detected window (`five_hour`→`5hr`, etc.) | Magenta |
 | Context window | `context_window.used_percentage` | Blue |
 | Directory | `workspace.current_dir` relative to `$HOME` | Dim |
-| Git branch | Current branch via `git symbolic-ref` | Green |
+| Git branch | Current branch with Nerd Font  glyph + dirty-state indicators | Green |
 
 Colors shift at configurable thresholds (default **50%** yellow, **80%** red).
+
+### Git status indicators
+
+When the working tree is dirty, the branch segment appends indicators:
+
+| Symbol | Meaning |
+|--------|---------|
+| `+` | Staged changes |
+| `!` | Modified (unstaged) |
+| `?` | Untracked files |
+| `✘` | Deleted |
+| `×` | Merge conflicts |
+| `⚑` | Stashed changes |
+| `⇡` | Ahead of upstream |
+| `⇣` | Behind upstream |
+| `⇕` | Diverged (both ahead and behind) |
+
+Example: ` main !+⇡` means you're on `main` with modified files, staged changes, and unpushed commits.
+
+> The branch glyph `` requires a [Nerd Font](https://www.nerdfonts.com/). If you don't have one installed, edit `scripts/statusbar.sh` and swap it for `ᚦ` or `⎇`.
 
 ## Uninstall
 
