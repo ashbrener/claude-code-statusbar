@@ -23,6 +23,7 @@ cfg() { echo "$config" | jq -r "$1 // \"$2\""; }
 model=$(echo "$input" | jq -r '.model.display_name // "Claude"')
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // ""')
 used_ctx=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
 
 # Rate limit — detect first available window dynamically
 rate_key=$(echo "$input" | jq -r '.rate_limits | keys[0] // empty')
@@ -40,7 +41,7 @@ if [ -n "$rate_key" ]; then
 fi
 
 # --- Config values ---
-SEGMENTS=$(echo "$config" | jq -r '.segments // ["model","rate","context","directory","branch"] | .[]')
+SEGMENTS=$(echo "$config" | jq -r '.segments // ["model","rate","context","thinking","directory","branch","thinking_stars"] | .[]')
 C_MODEL=$(cfg '.colors.model' '96')
 C_RATE=$(cfg '.colors.rate' '95')
 C_CTX=$(cfg '.colors.context' '94')
@@ -109,6 +110,47 @@ short_dir() {
   echo "$d"
 }
 
+# Detect the thinking-budget tier triggered by the most recent user prompt.
+# Reads the transcript JSONL, finds the latest `last-prompt` event, and
+# keyword-matches the user's text against Claude Code's documented tiers.
+# Always returns a tier: normal | think | hard | high | ultra.
+# Default ("normal") shows when no keyword fires, so the segment is
+# always visible as a stable anchor.
+detect_thinking() {
+  local tp="$1"
+  if [ -z "$tp" ] || [ ! -f "$tp" ]; then
+    echo "normal"
+    return
+  fi
+  # Scan only the tail of the transcript for performance (most-recent event
+  # is at the bottom of the JSONL stream).
+  local prompt
+  prompt=$(tail -n 200 "$tp" 2>/dev/null | grep '"type":"last-prompt"' | tail -1 \
+           | jq -r '.lastPrompt // empty' 2>/dev/null)
+  if [ -z "$prompt" ]; then
+    echo "normal"
+    return
+  fi
+  local p
+  p=$(echo "$prompt" | tr '[:upper:]' '[:lower:]')
+  # Longest-keyword-first match (specificity wins over breadth).
+  if echo "$p" | grep -qE '(ultrathink|ultra-think|megathink|mega-think)'; then
+    echo "ultra"
+  elif echo "$p" | grep -qE '(think really hard|think very hard|think a lot)'; then
+    echo "high"
+  elif echo "$p" | grep -qE '(think harder|think hard|think more)'; then
+    echo "hard"
+  elif echo "$p" | grep -qE '\bthink\b'; then
+    echo "think"
+  else
+    echo "normal"
+  fi
+}
+
+# Pre-compute the thinking tier once (avoid double transcript parse —
+# 'thinking' and 'thinking_stars' segments both read this).
+thinking_level=$(detect_thinking "$transcript_path")
+
 # --- Build output from segments ---
 out=""
 sep=""
@@ -145,6 +187,37 @@ for seg in $SEGMENTS; do
         col=$(threshold_color "$(color_pct "$used_ctx")" "$C_CTX")
         show_pct=$(display_pct "$used_ctx")
         out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${L_CTX}:${RESET}${col}$(bar "$show_pct") ${show_pct}%${RESET}")"
+        sep="  "
+      fi
+      ;;
+    thinking)
+      # Always-visible dot anchor. Color encodes tier intensity.
+      case "$thinking_level" in
+        ultra)  tcol="\033[1;95m" ;;
+        high)   tcol="\033[95m"   ;;
+        hard)   tcol="\033[35m"   ;;
+        think)  tcol="\033[2;95m" ;;
+        normal) tcol="\033[2m"    ;;
+        *)      tcol=""            ;;
+      esac
+      if [ -n "$tcol" ]; then
+        out="${out}${sep}$(printf "%b" "${tcol}·${RESET}")"
+        sep="  "
+      fi
+      ;;
+    thinking_stars)
+      # Asterisk-count tier indicator, typically rendered last so it
+      # right-anchors the bar. 1=normal, 2=think, 3=hard, 4=high, 5=ultra.
+      case "$thinking_level" in
+        ultra)  stars="*****"; tcol="\033[1;95m" ;;
+        high)   stars="****";  tcol="\033[95m"   ;;
+        hard)   stars="***";   tcol="\033[35m"   ;;
+        think)  stars="**";    tcol="\033[2;95m" ;;
+        normal) stars="*";     tcol="\033[2m"    ;;
+        *)      stars="";      tcol=""            ;;
+      esac
+      if [ -n "$stars" ]; then
+        out="${out}${sep}$(printf "%b" "${tcol}${stars}${RESET}")"
         sep="  "
       fi
       ;;
