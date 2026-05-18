@@ -50,7 +50,7 @@ You can choose:
 
 | Option | Choices |
 |--------|---------|
-| **Segments** | `vpn`, `model`, `rate`, `context`, `directory`, `branch` — pick which to show and in what order |
+| **Segments** | `vpn`, `model`, `rate`, `context`, `directory`, `branch`, `thinking_stars` (default set) plus opt-in `thinking` (mid-bar dot anchor) — pick which to show and in what order |
 | **Bar style** | `██░░` (default), `■■□□`, `●●○○`, `##--`, or custom characters |
 | **Bar width** | Number of characters (default: 10) |
 | **Directory** | Relative to `~/` (default), absolute, or strip a custom prefix |
@@ -79,11 +79,18 @@ Configuration is saved to `~/.claude/statusbar-config.json`. Without a config fi
 }
 ```
 
-**Everything, wide bars:**
+**Everything including the opt-in dot anchor + wide bars:**
 ```json
 {
-  "segments": ["model", "rate", "context", "directory", "branch"],
+  "segments": ["model", "rate", "context", "thinking", "directory", "branch", "thinking_stars"],
   "bar": { "filled": "█", "empty": "░", "width": 15 }
+}
+```
+
+**No thinking indicator (opt out):**
+```json
+{
+  "segments": ["model", "rate", "context", "directory", "branch"]
 }
 ```
 
@@ -97,8 +104,35 @@ Configuration is saved to `~/.claude/statusbar-config.json`. Without a config fi
 | Context window | `context_window.used_percentage` | Blue |
 | Directory | `workspace.current_dir` relative to `$HOME` | Dim |
 | Git branch | Current branch with Nerd Font  glyph + dirty-state indicators | Green |
+| Thinking (stars) | 1–5 asterisks indicating thinking-budget tier | Yellow ramp (see below) |
 
 Colors shift at configurable thresholds (default **50%** yellow, **80%** red).
+
+### Thinking-budget indicator
+
+Claude Code triggers extended thinking when your prompt contains specific keywords. The statusbar surfaces the tier of the most recent prompt as `thinking_stars` — **1–5 asterisks** rendered after the branch segment. Count + color encode intensity at a glance:
+
+| Latest prompt contains | Tier | Stars | Color |
+|---|---|---|---|
+| *(no thinking keyword)* | `normal` | `*` | Dim yellow |
+| `think` | `think` | `**` | Bright yellow |
+| `think hard` / `think harder` / `think more` | `hard` | `***` | Bright yellow |
+| `think really hard` / `think very hard` / `think a lot` | `high` | `****` | Bright yellow |
+| `ultrathink` / `megathink` | `ultra` | `*****` | Bold bright yellow |
+
+The tier is read fresh on every statusbar refresh by parsing the latest `last-prompt` event in the session transcript. No persistent state — each turn's keyword is reflected immediately.
+
+> **Note**: Until [claude-code#23929](https://github.com/anthropics/claude-code/issues/23929) lands, Claude Code's `statusLine` JSON contract doesn't expose thinking budget directly — this segment works by parsing the transcript file path Claude Code already provides (`transcript_path`).
+
+#### Optional: `thinking` (dot) segment
+
+An additional `thinking` segment renders a single colored `·` (magenta ramp) at any chosen position in the bar — useful if you want the indicator anchored mid-bar instead of (or alongside) the right-edge stars. Opt-in via config:
+
+```json
+{
+  "segments": ["model", "rate", "context", "thinking", "directory", "branch", "thinking_stars"]
+}
+```
 
 ### Git status indicators
 
