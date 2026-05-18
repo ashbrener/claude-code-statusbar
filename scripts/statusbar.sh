@@ -41,7 +41,7 @@ if [ -n "$rate_key" ]; then
 fi
 
 # --- Config values ---
-SEGMENTS=$(echo "$config" | jq -r '.segments // ["model","rate","context","thinking","directory","branch","thinking_stars"] | .[]')
+SEGMENTS=$(echo "$config" | jq -r '.segments // ["model","rate","context","directory","branch","thinking_stars"] | .[]')
 C_MODEL=$(cfg '.colors.model' '96')
 C_RATE=$(cfg '.colors.rate' '95')
 C_CTX=$(cfg '.colors.context' '94')
@@ -208,12 +208,14 @@ for seg in $SEGMENTS; do
     thinking_stars)
       # Asterisk-count tier indicator, typically rendered last so it
       # right-anchors the bar. 1=normal, 2=think, 3=hard, 4=high, 5=ultra.
+      # Yellow ramp: dim for default (no keyword), bright yellow for
+      # active tiers, bold-bright for the maximum (ultrathink).
       case "$thinking_level" in
-        ultra)  stars="*****"; tcol="\033[1;95m" ;;
-        high)   stars="****";  tcol="\033[95m"   ;;
-        hard)   stars="***";   tcol="\033[35m"   ;;
-        think)  stars="**";    tcol="\033[2;95m" ;;
-        normal) stars="*";     tcol="\033[2m"    ;;
+        ultra)  stars="*****"; tcol="\033[1;93m" ;;
+        high)   stars="****";  tcol="\033[93m"   ;;
+        hard)   stars="***";   tcol="\033[93m"   ;;
+        think)  stars="**";    tcol="\033[93m"   ;;
+        normal) stars="*";     tcol="\033[2;33m" ;;
         *)      stars="";      tcol=""            ;;
       esac
       if [ -n "$stars" ]; then

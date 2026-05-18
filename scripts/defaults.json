@@ -1,5 +1,5 @@
 {
-  "segments": ["model", "rate", "context", "thinking", "directory", "branch", "thinking_stars"],
+  "segments": ["model", "rate", "context", "directory", "branch", "thinking_stars"],
   "colors": {
     "model": "96",
     "rate": "95",
