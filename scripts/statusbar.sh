@@ -65,7 +65,7 @@ if [ -n "$rate_key" ]; then
 fi
 
 # --- Config values ---
-SEGMENTS=$(echo "$config" | jq -r '.segments // ["model","rate","context","directory","branch","thinking_stars"] | .[]')
+SEGMENTS=$(echo "$config" | jq -r '.segments // ["model","thinking_stars","rate","context","directory","branch"] | .[]')
 C_MODEL=$(cfg '.colors.model' '96')
 C_RATE=$(cfg '.colors.rate' '95')
 C_CTX=$(cfg '.colors.context' '94')
@@ -271,8 +271,7 @@ for seg in $SEGMENTS; do
       fi
       ;;
     thinking_stars)
-      # Asterisk-count effort indicator, typically rendered last so it
-      # right-anchors the bar. One star per effort level:
+      # Asterisk-count effort indicator. One star per effort level:
       # 1=low, 2=medium, 3=high (default), 4=xhigh, 5=max.
       # Yellow ramp: dim below the default, bright at or above it,
       # bold-bright at the ceiling.

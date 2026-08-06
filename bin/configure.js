@@ -27,14 +27,14 @@ async function configure() {
   }
 
   // Ensure defaults
-  config.segments = config.segments || ['model', 'rate', 'context', 'directory', 'branch', 'thinking_stars'];
+  config.segments = config.segments || ['model', 'thinking_stars', 'rate', 'context', 'directory', 'branch'];
   config.bar = config.bar || { filled: '█', empty: '░', width: 10 };
   config.thresholds = config.thresholds || { warning: 50, critical: 80 };
   config.directory = config.directory || { relative_to: 'home' };
 
   // --- Segment selection ---
   console.log('\nWhich segments do you want? (comma-separated, or press Enter for current)');
-  console.log('  Available: model, rate, context, directory, branch, thinking_stars');
+  console.log('  Available: model, thinking_stars, rate, context, directory, branch');
   console.log('             vpn (macOS VPN dot), thinking (mid-bar effort dot)');
   console.log(`  Current:   ${config.segments.join(', ')}`);
   const segInput = await ask(rl, '> ');

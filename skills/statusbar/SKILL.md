@@ -46,7 +46,7 @@ Available settings:
 
 | Setting | Default | Options |
 |---------|---------|---------|
-| Segments | model, rate, context, directory, branch, thinking_stars | Pick which to show and reorder. Also available: `vpn`, `thinking` |
+| Segments | model, thinking_stars, rate, context, directory, branch | Pick which to show and reorder. Also available: `vpn`, `thinking` |
 | Rate label | auto | `auto` (window name, e.g. `5hr`), `countdown` (time until reset, e.g. `4h35m`), or custom text |
 | Rate window | auto | `auto` picks the shortest horizon present; or name one explicitly (`five_hour`, `seven_day`) via `rate.window` |
 | Display mode | used | `used` (24% consumed) or `remaining` (76% available) |

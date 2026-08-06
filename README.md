@@ -3,7 +3,7 @@
 A configurable statusbar for [Claude Code](https://claude.ai/code) that keeps you informed without breaking your flow.
 
 ```
-● Claude Opus 5  4h35m:███░░░░░░░ 31%  ctx:████░░░░░░ 42%  Code/myproject  ᚦ main !?  ***
+● Claude Opus 5  ***  4h35m:███░░░░░░░ 31%  ctx:████░░░░░░ 42%  Code/myproject  ᚦ main !?
 ```
 
 ## Why?
@@ -53,7 +53,7 @@ You can choose:
 
 | Option | Choices |
 |--------|---------|
-| **Segments** | `model`, `rate`, `context`, `directory`, `branch`, `thinking_stars` (default set) plus opt-in `vpn` and `thinking` — pick which to show and in what order |
+| **Segments** | `model`, `thinking_stars`, `rate`, `context`, `directory`, `branch` (default set) plus opt-in `vpn` and `thinking` — pick which to show and in what order |
 | **Rate label** | `auto` (window name, e.g. `5hr`), `countdown` (time to reset, e.g. `4h35m`), or custom text |
 | **Rate window** | `auto` (shortest horizon available) or an explicit window (`five_hour`, `seven_day`, …) |
 | **Bar style** | `██░░` (default), `■■□□`, `●●○○`, `##--`, or custom characters |
@@ -94,7 +94,7 @@ Configuration is saved to `~/.claude/statusbar-config.json`. Every key is option
 **Everything including the opt-in dot anchor + wide bars:**
 ```json
 {
-  "segments": ["vpn", "model", "rate", "context", "thinking", "directory", "branch", "thinking_stars"],
+  "segments": ["vpn", "model", "thinking_stars", "rate", "context", "thinking", "directory", "branch"],
   "bar": { "filled": "█", "empty": "░", "width": 15 }
 }
 ```
@@ -113,11 +113,11 @@ Configuration is saved to `~/.claude/statusbar-config.json`. Every key is option
 |---------|--------|---------------|
 | VPN | macOS `scutil --nc list` (◉ connected / ○ disconnected) | Green |
 | Model | `model.display_name`, prefixed with `●` | Cyan |
+| Thinking (stars) | 1–5 asterisks for the session's reasoning effort | Yellow ramp |
 | Rate limit | `rate_limits.<window>.used_percentage` | Magenta |
 | Context window | `context_window.used_percentage` | Blue |
 | Directory | `workspace.current_dir` relative to `$HOME` | Dim |
 | Git branch | Current branch with `ᚦ` glyph + dirty-state indicators | Green |
-| Thinking (stars) | 1–5 asterisks for the session's reasoning effort | Yellow ramp |
 
 Colors shift at configurable thresholds (default **50%**, **80%**).
 
@@ -165,11 +165,11 @@ Claude Code now provides `effort.level` directly, and the segment reads it. The 
 
 #### Optional: `thinking` (dot) segment
 
-An additional `thinking` segment renders a single colored `·` (magenta ramp) at any chosen position in the bar — useful if you want the indicator anchored mid-bar instead of (or alongside) the right-edge stars. Opt-in via config:
+An additional `thinking` segment renders a single colored `·` (magenta ramp) at any chosen position in the bar — useful if you want the indicator anchored mid-bar instead of (or alongside) the stars. Opt-in via config:
 
 ```json
 {
-  "segments": ["model", "rate", "context", "thinking", "directory", "branch", "thinking_stars"]
+  "segments": ["model", "thinking_stars", "rate", "context", "thinking", "directory", "branch"]
 }
 ```
 
