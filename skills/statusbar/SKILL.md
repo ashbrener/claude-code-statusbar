@@ -46,12 +46,14 @@ Available settings:
 
 | Setting | Default | Options |
 |---------|---------|---------|
-| Segments | model, rate, context, directory, branch | Pick which to show and reorder |
+| Segments | model, rate, context, directory, branch, thinking_stars | Pick which to show and reorder. Also available: `vpn`, `thinking` |
+| Rate label | auto | `auto` (window name, e.g. `5hr`), `countdown` (time until reset, e.g. `4h35m`), or custom text |
+| Rate window | auto | `auto` picks the shortest horizon present; or name one explicitly (`five_hour`, `seven_day`) via `rate.window` |
 | Display mode | used | `used` (24% consumed) or `remaining` (76% available) |
 | Color ramp | same | `same` (brightens in gauge color) or `red` (shifts to yellow/red) |
 | Bar style | `██░░` | `■■□□`, `●●○○`, `##--`, or custom characters |
 | Bar width | 10 | Any number |
-| Labels | rate: auto, context: ctx | Custom strings (e.g. ctx → window) |
+| Context label | ctx | Custom string (e.g. ctx → window) |
 | Thresholds | 50% / 80% | When colors shift |
 | Directory | relative to ~/ | Absolute, or strip custom prefix |
 

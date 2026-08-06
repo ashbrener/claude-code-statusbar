@@ -27,14 +27,15 @@ async function configure() {
   }
 
   // Ensure defaults
-  config.segments = config.segments || ['model', 'rate', 'context', 'directory', 'branch'];
+  config.segments = config.segments || ['model', 'rate', 'context', 'directory', 'branch', 'thinking_stars'];
   config.bar = config.bar || { filled: '█', empty: '░', width: 10 };
   config.thresholds = config.thresholds || { warning: 50, critical: 80 };
   config.directory = config.directory || { relative_to: 'home' };
 
   // --- Segment selection ---
   console.log('\nWhich segments do you want? (comma-separated, or press Enter for current)');
-  console.log('  Available: model, rate, context, directory, branch');
+  console.log('  Available: model, rate, context, directory, branch, thinking_stars');
+  console.log('             vpn (macOS VPN dot), thinking (mid-bar effort dot)');
   console.log(`  Current:   ${config.segments.join(', ')}`);
   const segInput = await ask(rl, '> ');
 
@@ -112,11 +113,24 @@ async function configure() {
 
   // --- Labels ---
   config.labels = config.labels || { rate: 'auto', context: 'ctx' };
-  console.log(`\nGauge labels:`);
-  console.log(`  Rate limit: "${config.labels.rate}" (use "auto" to detect from window, e.g. 5hr)`);
-  console.log(`  Context:    "${config.labels.context}"`);
-  const rateLabel = await ask(rl, 'Rate limit label (Enter to keep): ');
-  if (rateLabel.trim()) config.labels.rate = rateLabel.trim();
+  console.log('\nRate limit label:');
+  console.log('  1) auto — the window name, e.g. "5hr" (default)');
+  console.log('  2) countdown — time until the window resets, e.g. "4h35m"');
+  console.log('  3) Custom text');
+  console.log(`  Current: ${config.labels.rate}`);
+  const rateChoice = await ask(rl, '> ');
+
+  switch (rateChoice.trim()) {
+    case '1': config.labels.rate = 'auto'; break;
+    case '2': config.labels.rate = 'countdown'; break;
+    case '3': {
+      const custom = await ask(rl, 'Label text: ');
+      if (custom.trim()) config.labels.rate = custom.trim();
+      break;
+    }
+  }
+
+  console.log(`\nContext label: "${config.labels.context}"`);
   const ctxLabel = await ask(rl, 'Context label (Enter to keep): ');
   if (ctxLabel.trim()) config.labels.context = ctxLabel.trim();
 
@@ -148,7 +162,10 @@ async function configure() {
 
   console.log('\nPreview:');
   const labels = config.labels || {};
-  const rLabel = labels.rate === 'auto' ? '5hr' : (labels.rate || '5hr');
+  // 'countdown' resolves at render time from the window's resets_at; show a
+  // representative duration here rather than the literal keyword.
+  const rateLabels = { auto: '5hr', countdown: '4h35m' };
+  const rLabel = rateLabels[labels.rate] || labels.rate || '5hr';
   const cLabel = labels.context || 'ctx';
   const isRemaining = config.display.mode === 'remaining';
   const rPct = isRemaining ? 80 : 20;
