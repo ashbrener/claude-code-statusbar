@@ -3,7 +3,7 @@
 A configurable statusbar for [Claude Code](https://claude.ai/code) that keeps you informed without breaking your flow.
 
 ```
-● Claude Opus 5  ***  4h35m:███░░░░░░░ 31%  ctx:████░░░░░░ 42%  Code/myproject  ᚦ main !?
+● Claude Opus 5  ***  5hr:███░░░░░░░ 31%  ctx:████░░░░░░ 42%  Code/myproject  ᚦ main !?
 ```
 
 ## Why?
