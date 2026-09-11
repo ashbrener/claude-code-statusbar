@@ -207,6 +207,10 @@ The installer copies a bash script to `~/.claude/statusbar-command.sh` and adds 
 
 The script reads an optional `~/.claude/statusbar-config.json` for customization, falling back to sensible defaults. Both the script and the config are re-read on every render, so **configuration changes take effect immediately** — no restart needed. Only install and uninstall, which touch `settings.json`, require restarting Claude Code.
 
+## Codex version
+
+Using OpenAI Codex? See [Codex Statusbar](https://github.com/eitanlevinai-stack/codex-statusbar), a standalone companion project that brings quota bars, reset countdowns, context, directory, and Git state to the Codex CLI.
+
 ## License
 
 MIT
