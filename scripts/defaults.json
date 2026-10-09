@@ -25,7 +25,7 @@
     "width": 10
   },
   "labels": {
-    "rate": "countdown",
+    "rate": "auto",
     "weekly": "auto",
     "context": "ctx",
     "cache": "cache"
