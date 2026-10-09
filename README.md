@@ -3,7 +3,7 @@
 A configurable statusbar for [Claude Code](https://claude.ai/code) that keeps you informed without breaking your flow.
 
 ```
-● Claude Opus 5  ***  5hr:███░░░░░░░ 31%  7d:64%  ctx:████░░░░░░ 42%  cache:47m  Code/myproject  ᚦ main !?
+● Claude Opus 5  ***  5hr:███░░░░░░░ 31%  7d:64%  250K ctx:████░░░░░░ 42%  cache:47m  Code/myproject  ᚦ main !?
 ```
 
 ## Why?
@@ -168,7 +168,9 @@ It follows the same thresholds, display mode and colour as the rate gauge. It is
 
 Claude Code reports context usage as a share of the model's **full** window. If you compact earlier than that — say a 250k auto-compact window on a 1M model — that figure reads 25% at the moment your conversation is compacted, and the gauge never reaches its warning colours.
 
-So the gauge measures tokens in context against the **auto-compact window** instead: 100% means compaction is due. At 80% it turns red, whatever colour ramp you use.
+So the gauge measures tokens in context against the **auto-compact window** instead, and names that window in front of the label: `250K ctx:████░░░░░░ 42%` is 42% of a 250K window. 100% means the window is full. At 80% it turns red, whatever colour ramp you use. Claude Code compacts slightly before the window is full, at about 93% in the sessions this was measured on.
+
+A reading above 100%, such as `151%`, means the session holds more than the window allows. That happens when you lower the window while a session is running: the gauge reads the new setting, while the session has been seen to carry on to its earlier limit. Restarting the session, or running `/compact`, brings it back under.
 
 The window is found in this order:
 
@@ -188,6 +190,7 @@ If none of those gives a number, the gauge falls back to the full window as befo
 |---|---|---|
 | `context.compact_at` | `"auto"` | `"auto"`, a token count, or `"off"` to measure against the full window |
 | `context.alert_at` | `80` | Percentage at which the gauge turns red; `0` disables it |
+| `context.show_window` | `true` | Show the window size in front of the label; `false` hides it |
 
 ### Prompt cache segment
 
@@ -196,7 +199,7 @@ Claude Code caches the conversation so each message only pays full price for wha
 | Renders | Meaning |
 |---|---|
 | `cache:47m` | Warm. 47 minutes until it expires. Turns yellow in the last 5 minutes. |
-| `cache:cold 412k` | Expired. The next message re-caches about 412k tokens. |
+| `cache:cold 412K` | Expired. The next message re-caches about 412K tokens. |
 | `cache:47m 2miss` | Two requests this session re-processed content the cache already held. |
 
 A long session left idle past the expiry is the expensive case: one message then costs a full re-read. `cold` with a large number is the cue to compact or start a fresh session instead of carrying on.

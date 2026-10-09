@@ -32,7 +32,8 @@
   },
   "context": {
     "compact_at": "auto",
-    "alert_at": 80
+    "alert_at": 80,
+    "show_window": true
   },
   "weekly": {
     "bar": false
