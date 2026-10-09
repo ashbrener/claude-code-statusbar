@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Claude Code Statusbar — https://github.com/ashbrener/claude-code-statusbar
 #
-# Displays a configurable statusbar with model, rate limits, context, directory, and git branch.
+# Displays a configurable statusbar with model, rate limits, context, prompt cache, directory, and git branch.
 # Colors shift based on usage thresholds.
 #
 # Receives JSON on stdin from Claude Code's statusLine command runner.
@@ -32,6 +32,9 @@ cfg() { echo "$config" | jq -r "$1 // \"$2\""; }
 model=$(echo "$input" | jq -r '.model.display_name // "Claude"')
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // ""')
 used_ctx=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+ctx_tokens=$(echo "$input" | jq -r '.context_window.total_input_tokens // empty')
+ctx_size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
+model_id=$(echo "$input" | jq -r '.model.id // empty')
 transcript_path=$(echo "$input" | jq -r '.transcript_path // empty')
 
 # Rate limit — pick the window to display.
@@ -64,11 +67,70 @@ if [ -n "$rate_key" ]; then
   esac
 fi
 
+# Context gauge — measure against the auto-compact window, not the model's
+# full window. `used_percentage` is a share of the full window, so with a 1M
+# model and compaction set to 250k the gauge would read 25% at the moment the
+# conversation is compacted and never reach its warning colours.
+# `context.compact_at`: "auto" (read Claude Code's own setting), a token count,
+# or "off" to keep measuring against the full window.
+compact_at=$(echo "$config" | jq -r '.context.compact_at // "auto"')
+if [ "$compact_at" = "auto" ]; then
+  compact_at="${CLAUDE_CODE_AUTO_COMPACT_WINDOW:-}"
+  claude_settings="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"
+  if [ -z "$compact_at" ] && [ -f "$claude_settings" ]; then
+    # A per-model window saved by /autocompact wins over the top-level key.
+    compact_at=$(jq -r --arg m "$model_id" \
+      '.modelSettings[$m].autoCompactWindow // .autoCompactWindow // empty' \
+      "$claude_settings" 2>/dev/null)
+  fi
+fi
+ctx_of_compact=""
+case "$compact_at" in
+  ''|*[!0-9]*|0) ;;
+  *)
+    case "$ctx_tokens" in
+      ''|*[!0-9]*) ;;
+      *)
+        # Claude Code caps the window at the model's context window.
+        case "$ctx_size" in
+          ''|*[!0-9]*) ;;
+          *) [ "$compact_at" -gt "$ctx_size" ] && compact_at="$ctx_size" ;;
+        esac
+        used_ctx=$(( ctx_tokens * 100 / compact_at ))
+        [ "$used_ctx" -gt 100 ] && used_ctx=100
+        ctx_of_compact=1
+        ;;
+    esac
+    ;;
+esac
+
+# Weekly window — a second, compact rate gauge. The `rate` segment shows the
+# window that throttles you first, which hides the seven-day limit until it is
+# already spent. Skipped when `rate` is itself showing the seven-day window.
+week_pct=""
+week_resets=""
+if [ "$rate_key" != "seven_day" ]; then
+  week_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
+  week_resets=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
+fi
+
+# Prompt cache — one lookup for the whole object (Claude Code 2.1.251+).
+# Absent before the first API response, and on providers that don't report
+# cache tokens, in which case caching_observed stays false.
+cache_observed="" cache_warm="" cache_expires="" cache_recache="" cache_misses=""
+IFS='|' read -r cache_observed cache_warm cache_expires cache_recache cache_misses <<EOF_CACHE
+$(echo "$input" | jq -r '.prompt_cache // {} | [
+    (.caching_observed // false), (.warm // false), (.expires_at // ""),
+    (.recache_tokens_if_cold // ""), (.misses // 0)
+  ] | map(tostring) | join("|")')
+EOF_CACHE
+
 # --- Config values ---
-SEGMENTS=$(echo "$config" | jq -r '.segments // ["model","thinking_stars","rate","context","directory","branch"] | .[]')
+SEGMENTS=$(echo "$config" | jq -r '.segments // ["model","thinking_stars","rate","weekly","context","cache","directory","branch"] | .[]')
 C_MODEL=$(cfg '.colors.model' '96')
 C_RATE=$(cfg '.colors.rate' '95')
 C_CTX=$(cfg '.colors.context' '94')
+C_CACHE=$(cfg '.colors.cache' '36')
 C_DIR=$(cfg '.colors.directory' '2')
 C_BRANCH=$(cfg '.colors.branch' '92')
 C_VPN=$(cfg '.colors.vpn' '92')
@@ -82,6 +144,11 @@ BAR_EMPTY=$(cfg '.bar.empty' '░')
 BAR_WIDTH=$(cfg '.bar.width' '10')
 L_RATE=$(cfg '.labels.rate' 'auto')
 L_CTX=$(cfg '.labels.context' 'ctx')
+L_WEEK=$(cfg '.labels.weekly' 'auto')
+L_CACHE=$(cfg '.labels.cache' 'cache')
+WEEK_BAR=$(cfg '.weekly.bar' 'false')
+CACHE_WARN_MIN=$(cfg '.cache.warn_minutes' '5')
+CTX_ALERT=$(cfg '.context.alert_at' '80')
 DISPLAY_MODE=$(cfg '.display.mode' 'used')
 COLOR_RAMP=$(cfg '.display.color_ramp' 'same')
 DIR_REL=$(cfg '.directory.relative_to' 'home')
@@ -124,12 +191,12 @@ bar() {
   echo "$b"
 }
 
-# Render seconds-until-reset as a compact duration, e.g. 4h35m / 47m / <1m.
+# Render seconds-until-reset as a compact duration, e.g. 3d04h / 4h35m / 47m / <1m.
 # `resets_at` is a Unix epoch timestamp supplied by Claude Code per rate-limit
 # window. Returns empty on missing/non-numeric input so callers can fall back
 # to the static window label.
 format_countdown() {
-  local target="$1" now remain h m
+  local target="$1" now remain d h m
   case "$target" in
     ''|*[!0-9]*) return ;;
   esac
@@ -138,14 +205,48 @@ format_countdown() {
   # Past the reset instant, the window has rolled over but the payload may not
   # have refreshed yet — show 0m rather than a negative duration.
   [ "$remain" -le 0 ] && { echo "0m"; return; }
+  d=$(( remain / 86400 ))
   h=$(( remain / 3600 ))
   m=$(( (remain % 3600) / 60 ))
-  if [ "$h" -gt 0 ]; then
+  # A day or more out (the weekly window), minutes are noise: show days+hours.
+  if [ "$d" -gt 0 ]; then
+    printf "%dd%02dh" "$d" $(( (remain % 86400) / 3600 ))
+  elif [ "$h" -gt 0 ]; then
     printf "%dh%02dm" "$h" "$m"
   elif [ "$m" -gt 0 ]; then
     printf "%dm" "$m"
   else
     printf "<1m"
+  fi
+}
+
+# Resolve a rate-gauge label. Modes: "auto" = the window name (5hr), "countdown"
+# = time until reset (4h35m), anything else = that literal string. Countdown
+# falls back to the window name if the payload carries no resets_at.
+gauge_label() {
+  local mode="$1" window_name="$2" resets="$3" countdown
+  case "$mode" in
+    auto) echo "$window_name" ;;
+    countdown)
+      countdown=$(format_countdown "$resets")
+      echo "${countdown:-$window_name}"
+      ;;
+    *) echo "$mode" ;;
+  esac
+}
+
+# Compact token count: 850 / 412k / 1.2M.
+format_tokens() {
+  local n="$1"
+  case "$n" in
+    ''|*[!0-9]*) return ;;
+  esac
+  if [ "$n" -ge 1000000 ]; then
+    printf "%d.%dM" $(( n / 1000000 )) $(( (n % 1000000) / 100000 ))
+  elif [ "$n" -ge 1000 ]; then
+    printf "%dk" $(( n / 1000 ))
+  else
+    printf "%d" "$n"
   fi
 }
 
@@ -231,27 +332,70 @@ for seg in $SEGMENTS; do
       if [ -n "$rate_pct" ]; then
         col=$(threshold_color "$(color_pct "$rate_pct")" "$C_RATE")
         show_pct=$(display_pct "$rate_pct")
-        # Label modes: "auto" = window name (5hr), "countdown" = time until
-        # reset (4h35m), anything else = that literal string. Countdown falls
-        # back to the window name if the payload carries no resets_at.
-        display_label="$rate_label"
-        case "$L_RATE" in
-          auto) ;;
-          countdown)
-            countdown=$(format_countdown "$rate_resets")
-            [ -n "$countdown" ] && display_label="$countdown"
-            ;;
-          *) display_label="$L_RATE" ;;
-        esac
+        display_label=$(gauge_label "$L_RATE" "$rate_label" "$rate_resets")
         out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${display_label}:${RESET}${col}$(bar "$show_pct") ${show_pct}%${RESET}")"
+        sep="  "
+      fi
+      ;;
+    weekly)
+      # Text-only by default so two rate gauges don't crowd the bar; set
+      # `weekly.bar` to true for a full gauge.
+      if [ -n "$week_pct" ]; then
+        col=$(threshold_color "$(color_pct "$week_pct")" "$C_RATE")
+        show_pct=$(display_pct "$week_pct")
+        display_label=$(gauge_label "$L_WEEK" "7d" "$week_resets")
+        gauge=""
+        [ "$WEEK_BAR" = "true" ] && gauge="$(bar "$show_pct") "
+        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${display_label}:${RESET}${col}${gauge}${show_pct}%${RESET}")"
         sep="  "
       fi
       ;;
     context)
       if [ -n "$used_ctx" ]; then
         col=$(threshold_color "$(color_pct "$used_ctx")" "$C_CTX")
+        # Close to compaction: switch to the critical colour whatever the
+        # colour ramp, so it reads as an alarm rather than a brighter gauge.
+        # Only when the gauge is measuring the compact window; 0 disables.
+        if [ -n "$ctx_of_compact" ] && [ "$CTX_ALERT" -gt 0 ] 2>/dev/null \
+           && [ "$(color_pct "$used_ctx")" -ge "$CTX_ALERT" ]; then
+          col="\033[1;${C_CRIT}m"
+        fi
         show_pct=$(display_pct "$used_ctx")
         out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${L_CTX}:${RESET}${col}$(bar "$show_pct") ${show_pct}%${RESET}")"
+        sep="  "
+      fi
+      ;;
+    cache)
+      # Warm: time left before the cached prefix expires. Cold: the next
+      # message re-pays for the whole conversation, so say how many tokens.
+      if [ "$cache_observed" = "true" ]; then
+        cache_left=""
+        case "$cache_expires" in
+          ''|*[!0-9]*) ;;
+          *) cache_left=$(( cache_expires - $(date +%s) )) ;;
+        esac
+        # `warm` can lag the clock between renders; an expiry in the past is cold.
+        if [ "$cache_warm" = "true" ] && { [ -z "$cache_left" ] || [ "$cache_left" -gt 0 ]; }; then
+          cache_text=$(format_countdown "$cache_expires")
+          cache_text="${cache_text:-warm}"
+          if [ -n "$cache_left" ] && [ "$cache_left" -le $(( CACHE_WARN_MIN * 60 )) ]; then
+            col=$(color "$C_WARN")
+          else
+            col="\033[2;${C_CACHE}m"
+          fi
+        else
+          cache_text="cold"
+          recache=$(format_tokens "$cache_recache")
+          [ -n "$recache" ] && cache_text="cold ${recache}"
+          col=$(color "$C_CRIT")
+        fi
+        seg_out="$(color "$C_LABEL")${L_CACHE}:${RESET}${col}${cache_text}${RESET}"
+        # Misses are requests that re-processed content the cache already held.
+        case "$cache_misses" in
+          ''|0|*[!0-9]*) ;;
+          *) seg_out="${seg_out} $(color "$C_WARN")${cache_misses}miss${RESET}" ;;
+        esac
+        out="${out}${sep}$(printf "%b" "$seg_out")"
         sep="  "
       fi
       ;;

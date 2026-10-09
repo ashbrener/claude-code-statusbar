@@ -20,8 +20,8 @@ echo ""
 
 # --- Segment selection ---
 echo "Which segments do you want? (comma-separated, or press Enter for default)"
-echo "  Available: model, rate, context, directory, branch"
-CURRENT_SEGS=$(echo "$config" | jq -r '.segments // ["model","rate","context","directory","branch"] | join(", ")')
+echo "  Available: model, thinking_stars, rate, weekly, context, cache, directory, branch"
+CURRENT_SEGS=$(echo "$config" | jq -r '.segments // ["model","thinking_stars","rate","weekly","context","cache","directory","branch"] | join(", ")')
 echo "  Current:   ${CURRENT_SEGS}"
 echo ""
 read -rp "> " seg_input

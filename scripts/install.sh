@@ -49,7 +49,9 @@ chmod +x "$DEST_FILE"
 echo "Installed: ${DEST_FILE}"
 
 # --- Update settings.json ---
-STATUSLINE_CONFIG='{"type":"command","command":"bash ~/.claude/statusbar-command.sh"}'
+# refreshInterval re-runs the bar every 60s so the reset and cache countdowns
+# keep ticking while the session is idle.
+STATUSLINE_CONFIG='{"type":"command","command":"bash ~/.claude/statusbar-command.sh","refreshInterval":60}'
 
 if [ -f "$SETTINGS_FILE" ]; then
     EXISTING=$(cat "$SETTINGS_FILE")

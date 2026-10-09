@@ -46,9 +46,12 @@ Available settings:
 
 | Setting | Default | Options |
 |---------|---------|---------|
-| Segments | model, thinking_stars, rate, context, directory, branch | Pick which to show and reorder. Also available: `vpn`, `thinking` |
+| Segments | model, thinking_stars, rate, weekly, context, cache, directory, branch | Pick which to show and reorder. Also available: `vpn`, `thinking` |
 | Rate label | auto | `auto` (window name, e.g. `5hr`), `countdown` (time until reset, e.g. `4h35m`), or custom text |
 | Rate window | auto | `auto` picks the shortest horizon present; or name one explicitly (`five_hour`, `seven_day`) via `rate.window` |
+| Weekly limit | text only | `weekly` shows the seven-day window as `7d:64%`; `weekly.bar: true` draws a gauge; `labels.weekly` takes the same modes as the rate label |
+| Context scale | auto | `context.compact_at`: `auto` measures against Claude Code's auto-compact window, a token count sets it explicitly, `off` uses the model's full window. `context.alert_at` (default 80) is the percentage at which the gauge turns red; 0 disables |
+| Prompt cache | on | `cache` shows time until the prompt cache expires, or `cold` plus the tokens the next message re-caches. `cache.warn_minutes` (default 5) sets when it turns yellow |
 | Display mode | used | `used` (24% consumed) or `remaining` (76% available) |
 | Color ramp | same | `same` (brightens in gauge color) or `red` (shifts to yellow/red) |
 | Bar style | `██░░` | `■■□□`, `●●○○`, `##--`, or custom characters |
