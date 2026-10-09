@@ -3,7 +3,7 @@
 A configurable statusbar for [Claude Code](https://claude.ai/code) that keeps you informed without breaking your flow.
 
 ```
-● Claude Opus 5  ***  5hr:███░░░░░░░ 31%  ctx:████░░░░░░ 42%  Code/myproject  ᚦ main !?
+● Claude Opus 5  ***  5hr:███░░░░░░░ 31%  7d:64%  ctx:████░░░░░░ 42%  cache:47m  Code/myproject  ᚦ main !?
 ```
 
 ## Why?
@@ -13,7 +13,9 @@ Claude Code doesn't show you how close you are to hitting rate limits or running
 This statusbar gives you a persistent, at-a-glance view of:
 
 - **Rate limits** — how much you've burned, and optionally a live countdown to when the window resets
-- **Context window** — so you know when to `/compact` or start a new session
+- **Weekly limit** — the seven-day window alongside the five-hour one, so it doesn't surprise you
+- **Context window** — measured against your auto-compact window, turning red as compaction approaches
+- **Prompt cache** — how long the cached conversation stays warm, and what the next message costs once it goes cold
 - **Reasoning effort** — which effort level the session is actually running at
 - **Model, directory, branch** — so you always know where you are
 - **Git status indicators** — modified, staged, untracked, ahead/behind, and more
@@ -53,7 +55,7 @@ You can choose:
 
 | Option | Choices |
 |--------|---------|
-| **Segments** | `model`, `thinking_stars`, `rate`, `context`, `directory`, `branch` (default set) plus opt-in `vpn` and `thinking` — pick which to show and in what order |
+| **Segments** | `model`, `thinking_stars`, `rate`, `weekly`, `context`, `cache`, `directory`, `branch` (default set) plus opt-in `vpn` and `thinking` — pick which to show and in what order |
 | **Rate label** | `auto` (window name, e.g. `5hr`), `countdown` (time to reset, e.g. `4h35m`), or custom text |
 | **Rate window** | `auto` (shortest horizon available) or an explicit window (`five_hour`, `seven_day`, …) |
 | **Bar style** | `██░░` (default), `■■□□`, `●●○○`, `##--`, or custom characters |
@@ -115,7 +117,9 @@ Configuration is saved to `~/.claude/statusbar-config.json`. Every key is option
 | Model | `model.display_name`, prefixed with `●` | Cyan |
 | Thinking (stars) | 1–5 asterisks for the session's reasoning effort | Yellow ramp |
 | Rate limit | `rate_limits.<window>.used_percentage` | Magenta |
-| Context window | `context_window.used_percentage` | Blue |
+| Weekly limit | `rate_limits.seven_day.used_percentage`, text only | Magenta |
+| Context window | Tokens in context as a share of the auto-compact window | Blue, red near compaction |
+| Prompt cache | `prompt_cache` — time left while warm, re-cache cost when cold | Teal, red when cold |
 | Directory | `workspace.current_dir` relative to `$HOME` | Dim |
 | Git branch | Current branch with `ᚦ` glyph + dirty-state indicators | Green |
 
@@ -141,9 +145,63 @@ Claude Code reports rate-limit usage per window — typically `five_hour` and `s
 
 Countdown reads `resets_at` — a Unix timestamp Claude Code supplies per window — and formats the remaining time. Hours are dropped under an hour (`47m`); minutes are zero-padded when hours are shown (`9h05m`) so the field doesn't change width as it counts down. Time is truncated, never rounded up, so it is never optimistic. If a window carries no usable `resets_at`, the label falls back to the window name.
 
-> **Note**: the countdown recomputes on each statusbar render, which Claude Code triggers on activity — not on a timer. It is accurate whenever you're working, but will read stale if you leave the session idle, then jump when you next interact.
+> **Note**: the countdown recomputes on each statusbar render, which Claude Code triggers on activity — not on a timer. It is accurate whenever you're working, but will read stale if you leave the session idle, then jump when you next interact. To keep it ticking while idle, add `"refreshInterval": 60` to the `statusLine` block in `~/.claude/settings.json`; Claude Code then re-runs the statusbar every 60 seconds as well.
 
 The whole segment is omitted when `rate_limits` is absent, which is the case before the first API response of a session and for non-subscription auth.
+
+### Weekly limit segment
+
+`weekly` shows the seven-day window as plain text (`7d:64%`) next to the main rate gauge. The `rate` segment picks the window that will throttle you first, which is normally the five-hour one, so without this the weekly limit stays out of sight until it is spent.
+
+It follows the same thresholds, display mode and colour as the rate gauge. It is omitted when the payload has no seven-day window, and when `rate` is already showing that window.
+
+```json
+{
+  "weekly": { "bar": true },
+  "labels": { "weekly": "countdown" }
+}
+```
+
+`weekly.bar` draws a full gauge instead of text only. `labels.weekly` takes the same three modes as `labels.rate`.
+
+### Context segment
+
+Claude Code reports context usage as a share of the model's **full** window. If you compact earlier than that — say a 250k auto-compact window on a 1M model — that figure reads 25% at the moment your conversation is compacted, and the gauge never reaches its warning colours.
+
+So the gauge measures tokens in context against the **auto-compact window** instead: 100% means compaction is due. At 80% it turns red, whatever colour ramp you use.
+
+The window is found in this order:
+
+1. `context.compact_at` in the statusbar config, if it is a token count
+2. the `CLAUDE_CODE_AUTO_COMPACT_WINDOW` environment variable
+3. `modelSettings.<model>.autoCompactWindow`, then `autoCompactWindow`, in `~/.claude/settings.json` — what `/autocompact` saves
+
+If none of those gives a number, the gauge falls back to the full window as before. A window set only in project settings or with the `--autocompact` flag is not detected; set `context.compact_at` yourself in that case.
+
+```json
+{
+  "context": { "compact_at": 250000, "alert_at": 70 }
+}
+```
+
+| Key | Default | Meaning |
+|---|---|---|
+| `context.compact_at` | `"auto"` | `"auto"`, a token count, or `"off"` to measure against the full window |
+| `context.alert_at` | `80` | Percentage at which the gauge turns red; `0` disables it |
+
+### Prompt cache segment
+
+Claude Code caches the conversation so each message only pays full price for what is new. The cache expires after five minutes or an hour of inactivity; Claude Code chooses the lifetime. Once it has expired, the next message re-processes the whole conversation.
+
+| Renders | Meaning |
+|---|---|
+| `cache:47m` | Warm. 47 minutes until it expires. Turns yellow in the last 5 minutes. |
+| `cache:cold 412k` | Expired. The next message re-caches about 412k tokens. |
+| `cache:47m 2miss` | Two requests this session re-processed content the cache already held. |
+
+A long session left idle past the expiry is the expensive case: one message then costs a full re-read. `cold` with a large number is the cue to compact or start a fresh session instead of carrying on.
+
+Requires Claude Code 2.1.251 or later. The segment is omitted on older versions, before the first API response, and on providers that don't report cache usage. Subagent requests are not counted. `cache.warn_minutes` sets when the countdown turns yellow; `labels.cache` renames it.
 
 ### Reasoning-effort indicator
 

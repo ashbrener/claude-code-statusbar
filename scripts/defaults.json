@@ -1,9 +1,10 @@
 {
-  "segments": ["model", "thinking_stars", "rate", "context", "directory", "branch"],
+  "segments": ["model", "thinking_stars", "rate", "weekly", "context", "cache", "directory", "branch"],
   "colors": {
     "model": "96",
     "rate": "95",
     "context": "94",
+    "cache": "36",
     "directory": "2",
     "branch": "92",
     "warning": "93",
@@ -25,7 +26,19 @@
   },
   "labels": {
     "rate": "auto",
-    "context": "ctx"
+    "weekly": "auto",
+    "context": "ctx",
+    "cache": "cache"
+  },
+  "context": {
+    "compact_at": "auto",
+    "alert_at": 80
+  },
+  "weekly": {
+    "bar": false
+  },
+  "cache": {
+    "warn_minutes": 5
   },
   "directory": {
     "relative_to": "home"
