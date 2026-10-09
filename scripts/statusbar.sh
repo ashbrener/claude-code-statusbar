@@ -156,6 +156,8 @@ L_CACHE=$(cfg '.labels.cache' 'cache')
 WEEK_BAR=$(cfg '.weekly.bar' 'false')
 CACHE_WARN_MIN=$(cfg '.cache.warn_minutes' '5')
 CTX_ALERT=$(cfg '.context.alert_at' '80')
+# Not via cfg: jq's `//` treats an explicit false as missing.
+CTX_SHOW_WINDOW=$(echo "$config" | jq -r 'if .context.show_window == false then "false" else "true" end')
 DISPLAY_MODE=$(cfg '.display.mode' 'used')
 COLOR_RAMP=$(cfg '.display.color_ramp' 'same')
 DIR_REL=$(cfg '.directory.relative_to' 'home')
@@ -242,16 +244,20 @@ gauge_label() {
   esac
 }
 
-# Compact token count: 850 / 412k / 1.2M.
+# Compact token count: 850 / 412K / 1.2M.
 format_tokens() {
   local n="$1"
   case "$n" in
     ''|*[!0-9]*) return ;;
   esac
   if [ "$n" -ge 1000000 ]; then
-    printf "%d.%dM" $(( n / 1000000 )) $(( (n % 1000000) / 100000 ))
+    if [ $(( (n % 1000000) / 100000 )) -eq 0 ]; then
+      printf "%dM" $(( n / 1000000 ))
+    else
+      printf "%d.%dM" $(( n / 1000000 )) $(( (n % 1000000) / 100000 ))
+    fi
   elif [ "$n" -ge 1000 ]; then
-    printf "%dk" $(( n / 1000 ))
+    printf "%dK" $(( n / 1000 ))
   else
     printf "%d" "$n"
   fi
@@ -369,8 +375,14 @@ for seg in $SEGMENTS; do
         fi
         show_pct=$(display_pct "$used_ctx")
         ctx_text="${show_pct}%"
+        # Name the window the percentage is of (250K ctx:… 45%), so the scale
+        # is never in doubt. Only when measuring the compact window.
+        ctx_window=""
+        if [ -n "$ctx_of_compact" ] && [ "$CTX_SHOW_WINDOW" = "true" ]; then
+          ctx_window="$(format_tokens "$compact_at") "
+        fi
         [ -n "$ctx_over" ] && [ "$DISPLAY_MODE" != "remaining" ] && ctx_text="${ctx_over}%"
-        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${L_CTX}:${RESET}${col}$(bar "$show_pct") ${ctx_text}${RESET}")"
+        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${ctx_window}${L_CTX}:${RESET}${col}$(bar "$show_pct") ${ctx_text}${RESET}")"
         sep="  "
       fi
       ;;
