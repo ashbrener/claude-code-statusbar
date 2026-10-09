@@ -142,7 +142,7 @@ T_CRIT=$(cfg '.thresholds.critical' '80')
 BAR_FILL=$(cfg '.bar.filled' '█')
 BAR_EMPTY=$(cfg '.bar.empty' '░')
 BAR_WIDTH=$(cfg '.bar.width' '10')
-L_RATE=$(cfg '.labels.rate' 'auto')
+L_RATE=$(cfg '.labels.rate' 'countdown')
 L_CTX=$(cfg '.labels.context' 'ctx')
 L_WEEK=$(cfg '.labels.weekly' 'auto')
 L_CACHE=$(cfg '.labels.cache' 'cache')
@@ -191,12 +191,12 @@ bar() {
   echo "$b"
 }
 
-# Render seconds-until-reset as a compact duration, e.g. 4h35m / 47m / <1m.
+# Render seconds-until-reset as a compact duration, e.g. 3d04h / 4h35m / 47m / <1m.
 # `resets_at` is a Unix epoch timestamp supplied by Claude Code per rate-limit
 # window. Returns empty on missing/non-numeric input so callers can fall back
 # to the static window label.
 format_countdown() {
-  local target="$1" now remain h m
+  local target="$1" now remain d h m
   case "$target" in
     ''|*[!0-9]*) return ;;
   esac
@@ -205,9 +205,13 @@ format_countdown() {
   # Past the reset instant, the window has rolled over but the payload may not
   # have refreshed yet — show 0m rather than a negative duration.
   [ "$remain" -le 0 ] && { echo "0m"; return; }
+  d=$(( remain / 86400 ))
   h=$(( remain / 3600 ))
   m=$(( (remain % 3600) / 60 ))
-  if [ "$h" -gt 0 ]; then
+  # A day or more out (the weekly window), minutes are noise: show days+hours.
+  if [ "$d" -gt 0 ]; then
+    printf "%dd%02dh" "$d" $(( (remain % 86400) / 3600 ))
+  elif [ "$h" -gt 0 ]; then
     printf "%dh%02dm" "$h" "$m"
   elif [ "$m" -gt 0 ]; then
     printf "%dm" "$m"

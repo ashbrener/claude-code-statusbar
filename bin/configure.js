@@ -112,10 +112,10 @@ async function configure() {
   else if (rampChoice.trim() === '1') config.display.color_ramp = 'same';
 
   // --- Labels ---
-  config.labels = config.labels || { rate: 'auto', context: 'ctx' };
+  config.labels = config.labels || { rate: 'countdown', context: 'ctx' };
   console.log('\nRate limit label:');
-  console.log('  1) auto — the window name, e.g. "5hr" (default)');
-  console.log('  2) countdown — time until the window resets, e.g. "4h35m"');
+  console.log('  1) auto — the window name, e.g. "5hr"');
+  console.log('  2) countdown — time until the window resets, e.g. "4h35m" (default)');
   console.log('  3) Custom text');
   console.log(`  Current: ${config.labels.rate}`);
   const rateChoice = await ask(rl, '> ');
@@ -165,7 +165,7 @@ async function configure() {
   // 'countdown' resolves at render time from the window's resets_at; show a
   // representative duration here rather than the literal keyword.
   const rateLabels = { auto: '5hr', countdown: '4h35m' };
-  const rLabel = rateLabels[labels.rate] || labels.rate || '5hr';
+  const rLabel = rateLabels[labels.rate] || labels.rate || '4h35m';
   const cLabel = labels.context || 'ctx';
   const isRemaining = config.display.mode === 'remaining';
   const rPct = isRemaining ? 80 : 20;

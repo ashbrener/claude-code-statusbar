@@ -3,7 +3,7 @@
 A configurable statusbar for [Claude Code](https://claude.ai/code) that keeps you informed without breaking your flow.
 
 ```
-● Claude Opus 5  ***  5hr:███░░░░░░░ 31%  7d:64%  ctx:████░░░░░░ 42%  cache:47m  Code/myproject  ᚦ main !?
+● Claude Opus 5  ***  2h14m:███░░░░░░░ 31%  7d:64%  ctx:████░░░░░░ 42%  cache:47m  Code/myproject  ᚦ main !?
 ```
 
 ## Why?
@@ -12,7 +12,7 @@ Claude Code doesn't show you how close you are to hitting rate limits or running
 
 This statusbar gives you a persistent, at-a-glance view of:
 
-- **Rate limits** — how much you've burned, and optionally a live countdown to when the window resets
+- **Rate limits** — how much you've burned, labelled with the time left until the window resets
 - **Weekly limit** — the seven-day window alongside the five-hour one, so it doesn't surprise you
 - **Context window** — measured against your auto-compact window, turning red as compaction approaches
 - **Prompt cache** — how long the cached conversation stays warm, and what the next message costs once it goes cold
@@ -56,7 +56,7 @@ You can choose:
 | Option | Choices |
 |--------|---------|
 | **Segments** | `model`, `thinking_stars`, `rate`, `weekly`, `context`, `cache`, `directory`, `branch` (default set) plus opt-in `vpn` and `thinking` — pick which to show and in what order |
-| **Rate label** | `auto` (window name, e.g. `5hr`), `countdown` (time to reset, e.g. `4h35m`), or custom text |
+| **Rate label** | `countdown` (time to reset, e.g. `4h35m`, the default), `auto` (window name, e.g. `5hr`), or custom text |
 | **Rate window** | `auto` (shortest horizon available) or an explicit window (`five_hour`, `seven_day`, …) |
 | **Bar style** | `██░░` (default), `■■□□`, `●●○○`, `##--`, or custom characters |
 | **Bar width** | Number of characters (default: 10) |
@@ -77,10 +77,10 @@ Configuration is saved to `~/.claude/statusbar-config.json`. Every key is option
 }
 ```
 
-**Countdown to rate-limit reset instead of the window name:**
+**Window name instead of the countdown to reset:**
 ```json
 {
-  "labels": { "rate": "countdown" }
+  "labels": { "rate": "auto" }
 }
 ```
 
@@ -104,8 +104,7 @@ Configuration is saved to `~/.claude/statusbar-config.json`. Every key is option
 **Weekly limit instead of the 5-hour one:**
 ```json
 {
-  "rate": { "window": "seven_day" },
-  "labels": { "rate": "countdown" }
+  "rate": { "window": "seven_day" }
 }
 ```
 
@@ -139,13 +138,13 @@ Claude Code reports rate-limit usage per window — typically `five_hour` and `s
 
 | Mode | Renders | Notes |
 |---|---|---|
-| `auto` *(default)* | `5hr`, `7d`, … | Derived from the window name |
-| `countdown` | `4h35m`, `47m`, `<1m` | Time until the window resets |
+| `countdown` *(default)* | `4h35m`, `47m`, `<1m`, `3d04h` | Time until the window resets |
+| `auto` | `5hr`, `7d`, … | Derived from the window name |
 | *any other string* | that string | e.g. `"quota"` |
 
-Countdown reads `resets_at` — a Unix timestamp Claude Code supplies per window — and formats the remaining time. Hours are dropped under an hour (`47m`); minutes are zero-padded when hours are shown (`9h05m`) so the field doesn't change width as it counts down. Time is truncated, never rounded up, so it is never optimistic. If a window carries no usable `resets_at`, the label falls back to the window name.
+Countdown reads `resets_at` — a Unix timestamp Claude Code supplies per window — and formats the remaining time. Hours are dropped under an hour (`47m`); minutes are zero-padded when hours are shown (`9h05m`) so the field doesn't change width as it counts down. A day or more out, which only the weekly window reaches, it shows days and hours (`3d04h`). Time is truncated, never rounded up, so it is never optimistic. If a window carries no usable `resets_at`, the label falls back to the window name.
 
-> **Note**: the countdown recomputes on each statusbar render, which Claude Code triggers on activity — not on a timer. It is accurate whenever you're working, but will read stale if you leave the session idle, then jump when you next interact. To keep it ticking while idle, add `"refreshInterval": 60` to the `statusLine` block in `~/.claude/settings.json`; Claude Code then re-runs the statusbar every 60 seconds as well.
+> **Note**: the countdown recomputes on each statusbar render. Claude Code renders on activity, and the installer also sets `"refreshInterval": 60` on the `statusLine` block in `~/.claude/settings.json`, so the bar re-runs every 60 seconds while the session is idle. If you installed before that was added, reinstall or add the key yourself; without it the countdown reads stale when idle and jumps when you next interact.
 
 The whole segment is omitted when `rate_limits` is absent, which is the case before the first API response of a session and for non-subscription auth.
 
@@ -261,7 +260,7 @@ Uninstall restores your previous statusbar configuration if one existed before i
 
 ## How it works
 
-The installer copies a bash script to `~/.claude/statusbar-command.sh` and adds the `statusLine` config to `~/.claude/settings.json`. Claude Code runs the script on each render, piping [session JSON](https://code.claude.com/docs/en/statusline) to stdin.
+The installer copies a bash script to `~/.claude/statusbar-command.sh` and adds the `statusLine` config to `~/.claude/settings.json`. Claude Code runs the script on each render and once a minute, piping [session JSON](https://code.claude.com/docs/en/statusline) to stdin.
 
 The script reads an optional `~/.claude/statusbar-config.json` for customization, falling back to sensible defaults. Both the script and the config are re-read on every render, so **configuration changes take effect immediately** — no restart needed. Only install and uninstall, which touch `settings.json`, require restarting Claude Code.
 

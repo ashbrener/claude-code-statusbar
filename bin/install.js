@@ -50,7 +50,9 @@ async function install() {
   // Update settings.json
   const statusLineConfig = {
     type: 'command',
-    command: 'bash ~/.claude/statusbar-command.sh'
+    command: 'bash ~/.claude/statusbar-command.sh',
+    // Re-run every 60s so the reset and cache countdowns keep ticking while idle.
+    refreshInterval: 60
   };
 
   let settings = {};

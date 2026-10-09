@@ -21,7 +21,7 @@ Check if the statusbar is installed:
 Tell the user the statusbar is not installed and show what it looks like:
 
 ```
-Opus 4.6  5hr:██░░░░░░░░ 12%  ctx:██░░░░░░░░ 24%  Code/myproject  main
+Opus 4.6  4h35m:██░░░░░░░░ 12%  ctx:██░░░░░░░░ 24%  Code/myproject  main
 ```
 
 Ask: **Install now?**
@@ -47,7 +47,7 @@ Available settings:
 | Setting | Default | Options |
 |---------|---------|---------|
 | Segments | model, thinking_stars, rate, weekly, context, cache, directory, branch | Pick which to show and reorder. Also available: `vpn`, `thinking` |
-| Rate label | auto | `auto` (window name, e.g. `5hr`), `countdown` (time until reset, e.g. `4h35m`), or custom text |
+| Rate label | countdown | `countdown` (time until reset, e.g. `4h35m`), `auto` (window name, e.g. `5hr`), or custom text |
 | Rate window | auto | `auto` picks the shortest horizon present; or name one explicitly (`five_hour`, `seven_day`) via `rate.window` |
 | Weekly limit | text only | `weekly` shows the seven-day window as `7d:64%`; `weekly.bar: true` draws a gauge; `labels.weekly` takes the same modes as the rate label |
 | Context scale | auto | `context.compact_at`: `auto` measures against Claude Code's auto-compact window, a token count sets it explicitly, `off` uses the model's full window. `context.alert_at` (default 80) is the percentage at which the gauge turns red; 0 disables |
