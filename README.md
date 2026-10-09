@@ -168,7 +168,9 @@ It follows the same thresholds, display mode and colour as the rate gauge. It is
 
 Claude Code reports context usage as a share of the model's **full** window. If you compact earlier than that — say a 250k auto-compact window on a 1M model — that figure reads 25% at the moment your conversation is compacted, and the gauge never reaches its warning colours.
 
-So the gauge measures tokens in context against the **auto-compact window** instead: 100% means compaction is due. At 80% it turns red, whatever colour ramp you use.
+So the gauge measures tokens in context against the **auto-compact window** instead: 100% means the window is full. At 80% it turns red, whatever colour ramp you use. Claude Code compacts slightly before the window is full, at about 93% in the sessions this was measured on.
+
+A reading above 100%, such as `151%`, means the session holds more than the window allows. That happens when you lower the window while a session is running: the gauge reads the new setting, while the session has been seen to carry on to its earlier limit. Restarting the session, or running `/compact`, brings it back under.
 
 The window is found in this order:
 

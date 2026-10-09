@@ -85,6 +85,7 @@ if [ "$compact_at" = "auto" ]; then
   fi
 fi
 ctx_of_compact=""
+ctx_over=""
 case "$compact_at" in
   ''|*[!0-9]*|0) ;;
   *)
@@ -97,7 +98,13 @@ case "$compact_at" in
           *) [ "$compact_at" -gt "$ctx_size" ] && compact_at="$ctx_size" ;;
         esac
         used_ctx=$(( ctx_tokens * 100 / compact_at ))
-        [ "$used_ctx" -gt 100 ] && used_ctx=100
+        # Past the window. This happens when the setting was lowered while the
+        # session was running: the session has been seen to carry on to its
+        # earlier limit. Keep the real figure for the text and cap the gauge.
+        if [ "$used_ctx" -gt 100 ]; then
+          ctx_over="$used_ctx"
+          used_ctx=100
+        fi
         ctx_of_compact=1
         ;;
     esac
@@ -361,7 +368,9 @@ for seg in $SEGMENTS; do
           col="\033[1;${C_CRIT}m"
         fi
         show_pct=$(display_pct "$used_ctx")
-        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${L_CTX}:${RESET}${col}$(bar "$show_pct") ${show_pct}%${RESET}")"
+        ctx_text="${show_pct}%"
+        [ -n "$ctx_over" ] && [ "$DISPLAY_MODE" != "remaining" ] && ctx_text="${ctx_over}%"
+        out="${out}${sep}$(printf "%b" "$(color "$C_LABEL")${L_CTX}:${RESET}${col}$(bar "$show_pct") ${ctx_text}${RESET}")"
         sep="  "
       fi
       ;;
